@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, RequestHandler } from "express";
 import { prisma } from "../db";
 
-export async function loadCurrentUser(
+export const loadCurrentUser: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-) {
+) => {
   try {
     if (!req.session.userId) {
       res.locals.currentUser = null;
@@ -24,7 +24,7 @@ export async function loadCurrentUser(
   } catch (err) {
     return next(err);
   }
-}
+};
 
 export function requireUser(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {

@@ -3,7 +3,8 @@ import path from "path";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
-import csrf from "csurf";
+import cookieParser from "cookie-parser";
+import { doubleCsrf } from "csrf-csrf";
 import type { RequestHandler } from "express";
 import { config } from "./config";
 import { loadCurrentUser } from "./middleware/auth";
@@ -20,6 +21,28 @@ app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "views"));
 
+const {
+  doubleCsrfProtection,
+  generateToken,
+  invalidCsrfTokenError
+} = doubleCsrf({
+  getSecret: () => config.sessionSecret,
+  cookieName: "_csrf",
+  cookieOptions: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: config.sessionSecure
+  },
+  size: 32,
+  ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+  getTokenFromRequest: (req) =>
+    (req.body && (req.body._csrf || req.body.csrfToken)) ||
+    req.headers["csrf-token"]?.toString() ||
+    req.headers["x-csrf-token"]?.toString() ||
+    (req.query._csrf as string) ||
+    ""
+});
+
 app.use(
   helmet({
     contentSecurityPolicy: false
@@ -28,6 +51,7 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(cookieParser(config.sessionSecret));
 
 app.use(
   session({
@@ -47,18 +71,14 @@ app.use(
   })
 );
 
-const csrfProtection: RequestHandler = csrf();
-const loadUser: RequestHandler = loadCurrentUser as unknown as RequestHandler;
-const flash: RequestHandler = flashMiddleware as unknown as RequestHandler;
-
-app.use(csrfProtection);
-app.use(loadUser);
-app.use(flash);
+app.use(doubleCsrfProtection as RequestHandler);
+app.use(loadCurrentUser as unknown as RequestHandler);
+app.use(flashMiddleware as unknown as RequestHandler);
 
 app.use((req, res, next) => {
   res.locals.appEnv = config.env;
   res.locals.turnstileSiteKey = config.turnstile.siteKey;
-  res.locals.csrfToken = req.csrfToken();
+  res.locals.csrfToken = generateToken(res, req);
   next();
 });
 
@@ -71,23 +91,23 @@ app.use((req, res) => {
   res.status(404).render("error", {
     title: "Not found",
     message: "Page not found",
-    csrfToken: req.csrfToken()
+    csrfToken: res.locals.csrfToken || generateToken(res, req)
   });
 });
 
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (err.code === "EBADCSRFTOKEN") {
+  if (err?.name === "DoubleCsrfError" || err === invalidCsrfTokenError) {
     return res.status(403).render("error", {
       title: "Security check failed",
       message: "Your session expired. Please refresh and try again.",
-      csrfToken: req.csrfToken()
+      csrfToken: generateToken(res, req)
     });
   }
   console.error(err);
   res.status(500).render("error", {
     title: "Server error",
     message: "Something went wrong.",
-    csrfToken: req.csrfToken()
+    csrfToken: generateToken(res, req)
   });
 });
 

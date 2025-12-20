@@ -46,7 +46,7 @@ export function rateLimitByIp(scope: string, limit: number, windowMs: number) {
       return res.status(429).render("error", {
         title: "Slow down",
         message: "Too many requests. Please try again shortly.",
-        csrfToken: req.csrfToken ? req.csrfToken() : undefined
+        csrfToken: res.locals.csrfToken
       });
     }
     return next();

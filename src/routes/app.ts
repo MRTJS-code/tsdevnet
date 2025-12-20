@@ -54,7 +54,7 @@ router.get("/", async (req, res, next) => {
       conversationId: conversation?.id || null,
       lastMessageAt,
       status: user.status,
-      csrfToken: req.csrfToken()
+      csrfToken: res.locals.csrfToken
     });
   } catch (err) {
     next(err);

@@ -7,7 +7,7 @@ import { requireAdmin } from "../middleware/auth";
 const router = Router();
 
 router.get("/login", (req, res) => {
-  res.render("admin/login", { title: "Admin Login", csrfToken: req.csrfToken() });
+  res.render("admin/login", { title: "Admin Login", csrfToken: res.locals.csrfToken });
 });
 
 router.post("/login", async (req, res) => {
@@ -40,7 +40,7 @@ router.get("/", async (req, res, next) => {
       title: "Admin",
       pendingUsers,
       recentRequests,
-      csrfToken: req.csrfToken()
+      csrfToken: res.locals.csrfToken
     });
   } catch (err) {
     next(err);
@@ -68,7 +68,7 @@ router.get("/users/:id", async (req, res, next) => {
     res.render("admin/user", {
       title: `User ${user.email}`,
       user,
-      csrfToken: req.csrfToken()
+      csrfToken: res.locals.csrfToken
     });
   } catch (err) {
     next(err);
@@ -95,7 +95,7 @@ router.get("/chat/:conversationId", async (req, res, next) => {
       title: "Admin Chat",
       conversation,
       user: conversation.user,
-      csrfToken: req.csrfToken()
+      csrfToken: res.locals.csrfToken
     });
   } catch (err) {
     next(err);

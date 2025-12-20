@@ -11,11 +11,11 @@ import { rateLimitByIp } from "../middleware/rateLimit";
 const router = Router();
 
 router.get("/", (req, res) => {
-  res.render("landing", { title: "Tony Smith | Recruiter", csrfToken: req.csrfToken() });
+  res.render("landing", { title: "Tony Smith | Recruiter", csrfToken: res.locals.csrfToken });
 });
 
 router.get("/signup", (req, res) => {
-  res.render("signup", { title: "Request Access", csrfToken: req.csrfToken() });
+  res.render("signup", { title: "Request Access", csrfToken: res.locals.csrfToken });
 });
 
 router.post(
@@ -80,7 +80,7 @@ router.post(
           title: "Check your email",
           message: "If your account is eligible, we\'ve sent you a magic link.",
           devMagicLink: null,
-          csrfToken: req.csrfToken()
+          csrfToken: res.locals.csrfToken
         });
       }
 
@@ -114,7 +114,7 @@ router.post(
         title: "Check your email",
         message: "If your account is eligible, we\'ve sent you a magic link.",
         devMagicLink: config.env === "dev" ? magicLink : null,
-        csrfToken: req.csrfToken()
+        csrfToken: res.locals.csrfToken
       });
     } catch (err) {
       return next(err);
@@ -123,7 +123,7 @@ router.post(
 );
 
 router.get("/login", (req, res) => {
-  res.render("login", { title: "Log in", csrfToken: req.csrfToken() });
+  res.render("login", { title: "Log in", csrfToken: res.locals.csrfToken });
 });
 
 router.post(
@@ -169,7 +169,7 @@ router.post(
           title: "Check your email",
           message: "If your account is eligible, we\'ve sent you a magic link.",
           devMagicLink: config.env === "dev" ? magicLink : null,
-          csrfToken: req.csrfToken()
+          csrfToken: res.locals.csrfToken
         });
       }
 
@@ -177,7 +177,7 @@ router.post(
         title: "Check your email",
         message: "If your account is eligible, we\\'ve sent you a magic link.",
         devMagicLink: null,
-        csrfToken: req.csrfToken()
+        csrfToken: res.locals.csrfToken
       });
     } catch (err) {
       return next(err);
@@ -192,7 +192,7 @@ router.get("/verify", async (req, res, next) => {
       return res.status(400).render("error", {
         title: "Invalid link",
         message: "Token missing.",
-        csrfToken: req.csrfToken()
+        csrfToken: res.locals.csrfToken
       });
     }
 
@@ -217,7 +217,7 @@ router.get("/verify", async (req, res, next) => {
       return res.status(400).render("error", {
         title: "Invalid link",
         message: "This link is invalid or expired.",
-        csrfToken: req.csrfToken()
+        csrfToken: res.locals.csrfToken
       });
     }
 

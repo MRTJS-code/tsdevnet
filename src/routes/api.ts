@@ -83,7 +83,10 @@ router.post("/chat", requireUser, async (req, res, next) => {
     });
 
     const replyText = await ChatService.generateReply(
-      history.map((m) => ({ sender: m.sender as "user" | "assistant", content: m.content })),
+      history.map((m: { sender: string; content: string }) => ({
+        sender: m.sender as "user" | "assistant",
+        content: m.content
+      })),
       tier
     );
 

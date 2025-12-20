@@ -4,6 +4,7 @@ import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
 import csrf from "csurf";
+import type { RequestHandler } from "express";
 import { config } from "./config";
 import { loadCurrentUser } from "./middleware/auth";
 import { flashMiddleware } from "./middleware/flash";
@@ -46,9 +47,9 @@ app.use(
   })
 );
 
-app.use(csrf());
-app.use(loadCurrentUser);
-app.use(flashMiddleware);
+app.use(csrf() as RequestHandler);
+app.use(loadCurrentUser as RequestHandler);
+app.use(flashMiddleware as RequestHandler);
 
 app.use((req, res, next) => {
   res.locals.appEnv = config.env;

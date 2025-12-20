@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../db";
+import { Prisma } from "@prisma/client";
 
 async function checkRateLimit(
   scope: string,
@@ -11,7 +12,7 @@ async function checkRateLimit(
   const windowStart = new Date(Math.floor(now / windowMs) * windowMs);
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const existing = await tx.rateLimit.findFirst({
         where: { scope, key, windowStart }
       });

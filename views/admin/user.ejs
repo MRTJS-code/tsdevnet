@@ -1,0 +1,70 @@
+<%- include("../partials/head", { title }) %>
+<section class="panel">
+  <h1><%= user.name || user.email %></h1>
+  <p>Status: <strong><%= user.status %></strong></p>
+  <div class="actions">
+    <form method="POST" action="/admin/users/<%= user.id %>/status" class="inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="action" value="approve" />
+      <button class="btn primary" type="submit">Approve</button>
+    </form>
+    <form method="POST" action="/admin/users/<%= user.id %>/status" class="inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="action" value="reject" />
+      <button class="btn ghost" type="submit">Reject</button>
+    </form>
+    <form method="POST" action="/admin/users/<%= user.id %>/status" class="inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="action" value="block" />
+      <button class="btn danger" type="submit">Block</button>
+    </form>
+  </div>
+</section>
+<section class="panel">
+  <h3>Details</h3>
+  <ul class="list">
+    <li>Email: <%= user.email %></li>
+    <li>Company: <%= user.company %></li>
+    <li>Role: <%= user.roleType %></li>
+    <li>LinkedIn: <%= user.linkedinUrl %></li>
+    <li>Hiring for: <%= user.hiringFor %></li>
+  </ul>
+</section>
+<section class="panel">
+  <h3>Notes</h3>
+  <form method="POST" action="/admin/users/<%= user.id %>/notes" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <textarea name="admin_notes" rows="4"><%= user.adminNotes || "" %></textarea>
+    <button class="btn primary" type="submit">Save notes</button>
+  </form>
+</section>
+<section class="panel">
+  <h3>Handoff requests</h3>
+  <% if (!user.handoffRequests.length) { %>
+    <p>No requests yet.</p>
+  <% } else { %>
+    <ul class="list">
+      <% user.handoffRequests.forEach(function(r){ %>
+        <li><%= r.type %> - <%= r.status %> - <%= r.message %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+<section class="panel">
+  <h3>Conversations</h3>
+  <% if (!user.conversations.length) { %>
+    <p>No conversations yet.</p>
+  <% } else { %>
+    <% user.conversations.forEach(function(c){ %>
+      <div class="conversation">
+        <div class="pill">Tier at time: <%= c.tierAtTime %></div>
+        <div class="pill">Status: <%= c.status %></div>
+        <a class="btn ghost" href="/admin/chat/<%= c.id %>">Open chat</a>
+        <% c.messages.forEach(function(m){ %>
+          <div class="bubble <%= m.sender %>"><%= m.content %></div>
+        <% }) %>
+      </div>
+    <% }) %>
+  <% } %>
+</section>
+<%- include("../partials/footer") %>

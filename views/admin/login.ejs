@@ -1,0 +1,12 @@
+<%- include("../partials/head", { title }) %>
+<section class="panel">
+  <h1>Admin login</h1>
+  <form method="POST" action="/admin/login" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>Password
+      <input type="password" name="password" required />
+    </label>
+    <button class="btn primary" type="submit">Enter</button>
+  </form>
+</section>
+<%- include("../partials/footer") %>

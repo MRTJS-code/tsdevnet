@@ -1,0 +1,65 @@
+<%- include("../partials/head", { title }) %>
+<section class="panel">
+  <a href="/admin" class="btn ghost">Back</a>
+  <h1>Conversation</h1>
+  <p><strong><%= user.name || user.email %></strong> — <%= user.company || "" %> — Status: <%= user.status %> — Tier: <%= user.status === "approved" ? "full" : "demo" %></p>
+  <p>Conversation status: <%= conversation.status %></p>
+</section>
+<section class="chat-panel" data-conversation-id="<%= conversation.id %>" data-last="<%= conversation.messages.length ? conversation.messages[conversation.messages.length-1].createdAt.toISOString() : '' %>">
+  <div id="admin-chat">
+    <% conversation.messages.forEach(function(m){ %>
+      <div class="bubble <%= m.sender %>"><%= m.isOwnerReply ? "Tony: " : "" %><%= m.content %></div>
+    <% }) %>
+  </div>
+</section>
+<section class="panel">
+  <form method="POST" action="/admin/chat/<%= conversation.id %>/reply" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>Reply
+      <textarea name="message" required></textarea>
+    </label>
+    <button class="btn primary" type="submit">Send reply</button>
+  </form>
+</section>
+<section class="panel">
+  <form method="POST" action="/admin/chat/<%= conversation.id %>/status" class="inline">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="action" value="acknowledge" />
+    <button class="btn ghost" type="submit">Mark acknowledged</button>
+  </form>
+  <form method="POST" action="/admin/chat/<%= conversation.id %>/status" class="inline">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="action" value="close" />
+    <button class="btn danger" type="submit">Close</button>
+  </form>
+</section>
+<script>
+(function(){
+  const chat = document.getElementById('admin-chat');
+  const container = document.querySelector('.chat-panel');
+  const convoId = container?.dataset.conversationId;
+  let last = container?.dataset.last || '';
+  async function poll() {
+    if (!convoId) return;
+    try {
+      const url = '/api/conversations/' + convoId + '/messages' + (last ? `?after=${encodeURIComponent(last)}` : '');
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.messages && data.messages.length) {
+        data.messages.forEach(m => {
+          const div = document.createElement('div');
+          div.className = 'bubble ' + m.sender;
+          div.textContent = (m.isOwnerReply ? 'Tony: ' : '') + m.content;
+          chat.appendChild(div);
+        });
+        last = data.messages[data.messages.length -1].createdAt;
+        chat.scrollTop = chat.scrollHeight;
+      }
+    } catch (e) {}
+    setTimeout(poll, 2500);
+  }
+  poll();
+})();
+</script>
+<%- include("../partials/footer") %>

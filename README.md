@@ -1,93 +1,115 @@
-# Tony Smith Recruiter Portal (PHP 8 + MySQL 8)
+# Tony Smith Recruiter Portal (Node.js + Postgres)
 
-Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basic CRM tables, and a demo chat UI.
+TypeScript Express app with passwordless magic-link auth, Cloudflare Turnstile, admin approvals, a chat UI (demo/full tiers), audit logging, and Postgres persistence. PHP legacy code is preserved in `archive/php_legacy`.
+
+## What's inside
+- Express + TypeScript, EJS views, vanilla JS frontend.
+- Magic-link auth (15 min, single-use), Turnstile on signup/login, secure sessions via Postgres store.
+- Tiered chat limits (demo=5/day, full=50/day), conversation/message logging, simple rule-based ChatService stub.
+- Admin console with approval/block/reject, notes, audit log entries, and admin chat replies.
+- Notifications via SMTP + optional Telegram; dev mailbox console fallback.
+- Prisma schema + SQL migrations, Render deployment manifest.
+
+## Repository layout
+- `src/` - server code (routes, services, middleware, config).
+- `views/` - EJS templates.
+- `public/` - static assets (CSS/JS).
+- `prisma/` - Prisma schema and migrations (000_init, 001_live_chat).
+- `render.yaml` - Render service + database definition.
+- `archive/php_legacy/` - previous PHP implementation, untouched.
 
 ## Prerequisites
-- PHP 8+ with PDO MySQL, curl/openssl enabled.
-- MySQL 8+.
-- Web server (Apache/Nginx) pointing document root to `public/`.
-- SMTP relay accessible at `localhost` (or adjust config).
+- Node.js 20+
+- Docker (for local Postgres) or a Postgres 14+ instance
 
-## Setup
-1. Copy `config/config.example.php` to `config/config.php` and fill values:
-   - `app_url` (e.g., `https://portal.example.com`)
-   - DB credentials
-   - Turnstile site/secret keys
-   - Mail sender + SMTP settings
-   - Admin basic auth credentials
-   - Set `session_secure=true` when HTTPS is enabled.
-2. Import the schema:
-   ```sh
-   mysql -u USER -p -h HOST tsdevnet < migrations/001_init.sql
-   ```
-3. (Recommended) Install PHPMailer:
-   ```sh
-   composer require phpmailer/phpmailer
-   ```
-   Ensure `vendor/autoload.php` is uploaded with the app. If PHPMailer is missing, the Mailer falls back to `mail()`.
+## Quickstart (local)
+1) Install deps
+```sh
+npm install
+```
+2) Start Postgres (example)
+```sh
+docker run --name tsdevnet-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=tsdevnet -d postgres:15
+```
+3) Configure env
+```sh
+cp .env.example .env
+# fill DATABASE_URL, TURNSTILE_* keys, SMTP, OWNER_EMAIL, ADMIN_PASSWORD, SESSION_SECRET, PUBLIC_BASE_URL
+```
+4) Generate client + run migrations
+```sh
+npm run prisma:generate
+npm run migrate:dev   # creates tables defined in prisma/migrations/
+```
+5) Run the app
+```sh
+npm run dev
+# visit http://localhost:3000
+```
 
-4. Deploy files; point web root to `public/`. Keep `config.php` **out of version control**.
+### Environment variables
+- `APP_ENV` (dev/prod) - enables dev mailbox + logging when `dev`.
+- `PORT`, `APP_URL` - external URL used for magic links.
+- `SESSION_SECRET`, `SESSION_SECURE` - cookie signing + secure flag (true in prod).
+- `DATABASE_URL` - Postgres connection string.
+- `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` - Cloudflare Turnstile keys.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME` - SMTP sender.
+- `OWNER_EMAIL` - who receives signup/handoff alerts.
+- `ADMIN_PASSWORD` - password for `/admin/login`.
+- `DEV_MAILBOX` - set to `console` in dev to log magic links instead of sending.
+- `PUBLIC_BASE_URL` - external URL for links in notifications (e.g., `https://yourapp.com`).
+- `TELEGRAM_BOT_TOKEN`, `OWNER_TELEGRAM_CHAT_ID` - optional Telegram notifications to owner.
 
-## Turnstile
-- Create a Turnstile site + secret key at Cloudflare.
-- Add keys to `config.php` under `turnstile`.
-- Widgets are rendered on signup/login via the JS snippet; server-side verification enforces pass/fail.
+### Auth + security
+- Passwordless only. Tokens are SHA-256 hashed, 15 minute TTL, single-use.
+- Turnstile verified server-side on signup/login.
+- Sessions stored in Postgres via `connect-pg-simple`; secure, HttpOnly, SameSite=Lax cookies.
+- CSRF protection via `csurf` on chat/admin/actions; helmet headers enabled.
+- Rate limits: IP-based on auth endpoints; per-tier daily message caps on chat; polling endpoints are rate-limited.
+- No email enumeration on login; responses are generic.
 
-## SMTP
-- Default points to `localhost:25` with no auth.
-- Set `smtp_username`/`smtp_password` and `smtp_secure` (`tls`/`ssl`) if required.
-- Sender defaults to `noreply@example.com` and name "Tony Smith".
+### Admin usage
+- Visit `/admin/login`, enter `ADMIN_PASSWORD`.
+- Review pending users, approve/reject/block, add notes, and view conversations.
+- Admin chat view (`/admin/chat/:conversationId`) shows threads and allows replies/ack/close. All admin actions are CSRF-protected and logged to `audit_log`.
 
-## Environments
-- Set `app_env=dev` to expose magic links on-screen after signup/login (for setup/testing only).
-- In prod, ensure HTTPS is on and `session_secure=true`.
+### Notifications
+- `NotificationService` emails `OWNER_EMAIL` on new signups and handoff requests using Nodemailer SMTP config.
+- In `APP_ENV=dev` with `DEV_MAILBOX=console`, emails log to console and magic links also show on the confirmation page.
+- Telegram (optional): on new signup and live chat/meeting handoff, sends a message to `OWNER_TELEGRAM_CHAT_ID` with admin links.
 
-## Auth flow
-- Signup: creates `users` row with `status=pending`, emails magic link (15 min TTL).
-- Login: always shows generic success; if user exists and not blocked, sends new magic link.
-- Verify: hashes token, checks expiry/used/blocked, marks used, logs in, updates `last_login_at`.
-- Logout: clears session.
+### Deploy to Render
+- Use `render.yaml` (includes web service + Postgres). Render will inject `DATABASE_URL` from the managed DB.
+- Build command: `npm install && npm run build && npm run prisma:generate`
+- Start command: `npm run start`
+- Set env vars in the Render dashboard for Turnstile, SMTP, OWNER_EMAIL, ADMIN_PASSWORD, SESSION_SECRET, APP_URL, PUBLIC_BASE_URL, Telegram keys, etc.
+- Ensure `SESSION_SECURE=true` and `APP_ENV=prod` in production.
 
-## App area
-- `/app/index.php` shows tier based on status:
-  - pending â†’ Demo Access (5 msgs/day)
-  - approved â†’ Full Access (50 msgs/day)
-- `/app/chat.php` enforces CSRF, origin, JSON content-type, and per-user daily limits.
-- Messages + conversations are stored; replies are canned in `ChatService::generateReply()`. Swap this out to call Azure OpenAI later (keep limits/logging intact).
+### Database schema
+Prisma schema covers: users, access_tokens, conversations (status/last_activity), messages (metadata/is_owner_reply), rate_limits, audit_log, handoff_requests (linked to conversation), and session store. SQL is in `prisma/migrations/000_init/migration.sql` and `prisma/migrations/001_live_chat/migration.sql`.
 
-## Admin
-- HTTP Basic Auth using `ADMIN_USER`/`ADMIN_PASS` from `config.php`.
-- `/admin/index.php` lists pending users with Approve/Reject/Block.
-- `/admin/user.php?id=...` shows details, notes, conversations/messages; lets you edit admin notes.
+### Adding Azure OpenAI / Foundry later
+- Implement `ChatService.generateLLMReply` (or swap body of `generateReply`) to call your LLM, keeping inputs as the message history and tier.
+- Preserve rate limiting, logging, and session handling already in `api/chat`.
+- Inject credentials via env vars; do not expose keys client-side.
+- Consider capturing token usage + model name in `audit_log.metadata` when you wire it up.
 
-## Adding Azure OpenAI later
-1. Implement `ChatService::generateReply()` to call Azure OpenAI (gpt-4o, etc.).
-2. Keep rate limiting, tier logic, and logging as-is.
-3. Store full request/response transcripts in MySQL (messages table already captures this).
-4. Do **not** expose secrets client-side; load them from `config.php`.
+### Telegram setup
+1. Create a bot via BotFather (`/newbot`) and copy the bot token.
+2. Get your chat_id: send a message to the bot, then call `https://api.telegram.org/bot<token>/getUpdates` from your browser/curl and read your `chat.id`.
+3. Set `TELEGRAM_BOT_TOKEN` and `OWNER_TELEGRAM_CHAT_ID` in your Render env. Also set `PUBLIC_BASE_URL` so admin links in notifications are correct.
 
-## Security notes
-- Sessions: HttpOnly, SameSite=Lax, Secure (when HTTPS).
-- Tokens: random bytes, stored as SHA-256 hashes, single-use, 15 min expiry.
-- No email enumeration on login.
-- Turnstile verified server-side; fail closed.
-- CSRF: session token for chat API and admin actions.
-- Rate limiting stored in DB by scope/user/IP.
-- Security headers set in `src/bootstrap.php` via `Util::sendSecurityHeaders()`.
-- Use HTTPS in production and protect `config.php`/migrations from web access.
+### Live chat (polling)
+- Both recruiter and admin chat views poll `/api/conversations/:id/messages?after=<timestamp>` every ~2–3 seconds with simple backoff on errors.
+- Admin replies are stored as `is_owner_reply=true` and rendered in the recruiter UI.
+- Handoff “Request a chat with Tony” creates a handoff request tied to the conversation; Tony/owner is alerted via Telegram/email. Conversation status can be acknowledged/closed in the admin view.
 
-## File map
-- Public entry: `public/index.php`, `signup.php`, `login.php`, `verify.php`, `logout.php`
-- App: `public/app/index.php`, `public/app/chat.php`
-- Admin: `public/admin/index.php`, `public/admin/user.php`
-- Assets: `public/assets/css/styles.css`, `public/assets/js/app.js`, `public/favicon.svg`
-- Core: `src/*.php`
-- Config: `config/config.php` (private), sample at `config/config.example.php`
-- DB: `migrations/001_init.sql`
+### NPM scripts
+- `npm run dev` - ts-node-dev watcher
+- `npm run build` - TypeScript build to `dist/`
+- `npm start` - run compiled server
+- `npm run migrate:dev` / `npm run migrate:deploy` - Prisma migrations
+- `npm run prisma:generate` - regenerate Prisma client
 
-## Running locally
-- Serve `public/` via PHPâ€™s built-in server for quick checks:
-  ```sh
-  php -S localhost:8000 -t public
-  ```
-- Ensure MySQL + Turnstile keys are set; in `dev` you can view magic links directly after signup/login.
+### Legacy PHP
+- Original PHP/MySQL implementation is preserved in `archive/php_legacy/` for reference and is no longer used for deployment.

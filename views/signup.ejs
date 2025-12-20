@@ -1,0 +1,36 @@
+<%- include("partials/head", { title }) %>
+<section class="panel">
+  <h1>Request access</h1>
+  <form method="POST" action="/signup" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>Name
+      <input name="name" required />
+    </label>
+    <label>Email
+      <input type="email" name="email" required />
+    </label>
+    <label>Company
+      <input name="company" required />
+    </label>
+    <label>Role type
+      <select name="role_type" required>
+        <option value="Recruiter">Recruiter</option>
+        <option value="Hiring Manager">Hiring Manager</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+    <label>LinkedIn URL (optional)
+      <input name="linkedin_url" />
+    </label>
+    <label>Hiring for (optional)
+      <input name="hiring_for" />
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="consent" required />
+      <span>I agree to receive updates about access and meetings.</span>
+    </label>
+    <div class="turnstile" data-sitekey="<%= turnstileSiteKey %>"></div>
+    <button class="btn primary" type="submit">Send magic link</button>
+  </form>
+</section>
+<%- include("partials/footer") %>

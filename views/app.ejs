@@ -1,0 +1,46 @@
+<%- include("partials/head", { title }) %>
+<section class="panel">
+  <div class="status-row">
+    <span class="pill">Status: <%= status %></span>
+    <span class="pill">Tier: <%= tier %></span>
+    <span class="pill">Remaining today: <%= remaining %></span>
+    <form method="POST" action="/logout" class="inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn ghost" type="submit">Logout</button>
+    </form>
+  </div>
+  <% if (status !== 'approved') { %>
+    <p class="hint">Demo mode: limited access until approved.</p>
+  <% } %>
+</section>
+<section class="chat-panel" data-conversation-id="<%= conversationId || '' %>" data-last="<%= lastMessageAt ? lastMessageAt.toISOString() : '' %>">
+  <div id="chat" data-remaining="<%= remaining %>">
+    <% if (messages.length === 0) { %>
+      <div class="bubble assistant">Ask me about roles, skills, or hiring process.</div>
+    <% } %>
+    <% messages.forEach(function(msg){ %>
+      <div class="bubble <%= msg.sender %>"><%= msg.isOwnerReply ? "Tony: " : "" %><%= msg.content %></div>
+    <% }) %>
+  </div>
+  <form id="chat-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <textarea name="message" placeholder="Type a message" required></textarea>
+    <div class="form-actions">
+      <button class="btn primary" type="submit">Send</button>
+      <small class="hint">Daily cap: <%= tier === "full" ? "50" : "5" %> messages</small>
+    </div>
+  </form>
+</section>
+<section class="panel">
+  <h3>Request a chat with Tony</h3>
+  <p class="hint">Tony will be notified via Telegram. You can keep this tab open to see replies.</p>
+  <form id="handoff-form" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="type" value="live_chat" />
+    <label>Message
+      <textarea name="message" placeholder="What do you want to discuss?" required></textarea>
+    </label>
+    <button class="btn ghost" type="submit">Notify Tony</button>
+  </form>
+</section>
+<%- include("partials/footer") %>

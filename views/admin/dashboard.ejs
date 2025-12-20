@@ -1,0 +1,47 @@
+<%- include("../partials/head", { title }) %>
+<section class="panel">
+  <h1>Admin</h1>
+  <form method="POST" action="/admin/logout">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <button class="btn ghost" type="submit">Sign out</button>
+  </form>
+</section>
+<section class="panel">
+  <h2>Pending users</h2>
+  <% if (!pendingUsers.length) { %>
+    <p>No pending users.</p>
+  <% } else { %>
+    <table class="table">
+      <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Joined</th><th></th></tr></thead>
+      <tbody>
+        <% pendingUsers.forEach(function(u){ %>
+          <tr>
+            <td><%= u.name %></td>
+            <td><%= u.email %></td>
+            <td><%= u.company %></td>
+            <td><%= new Date(u.createdAt).toLocaleString() %></td>
+            <td><a href="/admin/users/<%= u.id %>">View</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</section>
+<section class="panel">
+  <h2>Recent handoff requests</h2>
+  <% if (!recentRequests.length) { %>
+    <p>No handoff requests yet.</p>
+  <% } else { %>
+    <ul class="list">
+      <% recentRequests.forEach(function(r){ %>
+        <li>
+          <strong><%= r.user?.email %></strong> - <%= r.type %> - <%= r.status %>
+          <% if (r.conversationId) { %>
+            <a href="/admin/chat/<%= r.conversationId %>">Open chat</a>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+<%- include("../partials/footer") %>

@@ -1,0 +1,142 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserStatus {
+  pending
+  approved
+  rejected
+  blocked
+}
+
+enum ConversationStatus {
+  open
+  closed
+}
+
+enum SenderType {
+  user
+  assistant
+}
+
+enum ActorType {
+  admin
+  user
+}
+
+enum HandoffType {
+  approval_request
+  meeting_request
+  meeting
+  live_chat
+}
+
+enum HandoffStatus {
+  new
+  acknowledged
+  closed
+}
+
+model User {
+  id             String           @id @default(uuid())
+  name           String?
+  email          String           @unique
+  company        String?
+  roleType       String?
+  linkedinUrl    String?
+  hiringFor      String?
+  consentAt      DateTime?
+  status         UserStatus       @default(pending)
+  adminNotes     String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  approvedAt     DateTime?
+  lastLoginAt    DateTime?
+
+  accessTokens   AccessToken[]
+  conversations  Conversation[]
+  handoffRequests HandoffRequest[]
+  auditLogs      AuditLog[]
+}
+
+model AccessToken {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+  ipAddress  String?
+  userAgent  String?
+}
+
+model Conversation {
+  id         String     @id @default(uuid())
+  user       User       @relation(fields: [userId], references: [id])
+  userId     String
+  tierAtTime String
+  status     ConversationStatus @default(open)
+  startedAt  DateTime   @default(now())
+  endedAt    DateTime?
+  ipAddress  String?
+  userAgent  String?
+  lastActivityAt DateTime @default(now())
+  messages   Message[]
+  handoffRequests HandoffRequest[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  sender         SenderType
+  content        String
+  createdAt      DateTime     @default(now())
+  metadata       Json?
+  isOwnerReply   Boolean      @default(false)
+}
+
+model RateLimit {
+  id          Int       @id @default(autoincrement())
+  scope       String
+  key         String
+  windowStart DateTime
+  count       Int
+
+  @@unique([scope, key, windowStart])
+}
+
+model AuditLog {
+  id         String     @id @default(uuid())
+  actorType  ActorType
+  actorId    String?
+  action     String
+  metadata   Json?
+  createdAt  DateTime   @default(now())
+  ipAddress  String?
+}
+
+model HandoffRequest {
+  id        String         @id @default(uuid())
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String
+  conversation Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?
+  type      HandoffType
+  message   String?
+  status    HandoffStatus  @default(new)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+}

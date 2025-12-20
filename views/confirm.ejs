@@ -1,0 +1,12 @@
+<%- include("partials/head", { title }) %>
+<section class="panel">
+  <h1><%= title %></h1>
+  <p><%= message %></p>
+  <% if (devMagicLink) { %>
+    <div class="dev-box">
+      <p>DEV magic link:</p>
+      <code><%= devMagicLink %></code>
+    </div>
+  <% } %>
+</section>
+<%- include("partials/footer") %>

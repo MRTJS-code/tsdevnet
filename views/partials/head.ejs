@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">Tony Smith</div>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href="/signup">Request access</a>
+      <a href="/login">Log in</a>
+    </nav>
+  </header>
+  <main class="page">
+    <% if (flash && flash.length) { %>
+      <div class="flash-list">
+        <% flash.forEach(function(item){ %>
+          <div class="flash <%= item.type %>"><%= item.message %></div>
+        <% }); %>
+      </div>
+    <% } %>

@@ -81,7 +81,7 @@ app.use(flashMiddleware);
 app.use((req, res, next) => {
   res.locals.appEnv = config.env;
   res.locals.turnstileSiteKey = config.turnstile.siteKey;
-  res.locals.csrfToken = generateToken(res, req);
+  res.locals.csrfToken = generateToken(req, res);
   next();
 });
 
@@ -94,7 +94,7 @@ app.use((req, res) => {
   res.status(404).render("error", {
     title: "Not found",
     message: "Page not found",
-    csrfToken: res.locals.csrfToken || generateToken(res, req)
+    csrfToken: res.locals.csrfToken || generateToken(req, res)
   });
 });
 
@@ -103,14 +103,14 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
     return res.status(403).render("error", {
       title: "Security check failed",
       message: "Your session expired. Please refresh and try again.",
-      csrfToken: generateToken(res, req)
+      csrfToken: generateToken(req, res)
     });
   }
   console.error(err);
   res.status(500).render("error", {
     title: "Server error",
     message: "Something went wrong.",
-    csrfToken: generateToken(res, req)
+    csrfToken: generateToken(req, res)
   });
 });
 

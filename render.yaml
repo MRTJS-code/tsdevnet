@@ -3,7 +3,7 @@ services:
     name: tsdevnet-web
     env: node
     plan: starter
-    buildCommand: "npm install && npm run prisma:generate && npm run build"
+    buildCommand: "npm ci && npm run prisma:generate && npm run build"
     startCommand: "npm run start"
     envVars:
       - key: APP_ENV

@@ -1,10 +1,25 @@
-import type { User, HandoffRequest } from "@prisma/client";
 import { config } from "../config";
 import { MailService } from "./MailService";
 import { TelegramNotifier } from "../TelegramNotifier";
 
+type MinimalUser = {
+  id: string;
+  name: string | null;
+  email: string;
+  company: string | null;
+  roleType: string | null;
+  status: string;
+};
+
+type MinimalHandoff = {
+  conversationId?: string | null;
+  type: string;
+  message?: string | null;
+  status: string;
+};
+
 export class NotificationService {
-  static async notifyOwnerNewSignup(user: User) {
+  static async notifyOwnerNewSignup(user: MinimalUser) {
     const subject = `New signup: ${user.name || user.email}`;
     const text = `A new user signed up.\nName: ${user.name}\nEmail: ${user.email}\nCompany: ${user.company || ""}\nRole: ${user.roleType || ""}\nStatus: ${user.status}`;
 
@@ -18,8 +33,8 @@ export class NotificationService {
   }
 
   static async notifyOwnerHandoffRequest(
-    request: HandoffRequest,
-    user: User
+    request: MinimalHandoff,
+    user: MinimalUser
   ) {
     const subject = `Handoff request from ${user.email}`;
     const text = `User ${user.name || user.email} requested: ${request.type}\nMessage: ${request.message || "(none)"}\nStatus: ${request.status}`;

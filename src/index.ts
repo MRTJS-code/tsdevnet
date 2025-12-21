@@ -71,12 +71,9 @@ app.use(
   })
 );
 
-const csrfMiddleware: RequestHandler = (req, res, next) =>
-  doubleCsrfProtection(req, res, next);
-
-app.use(csrfMiddleware as unknown as RequestHandler);
-app.use(loadCurrentUser as unknown as RequestHandler);
-app.use(flashMiddleware as unknown as RequestHandler);
+app.use(doubleCsrfProtection as any);
+app.use(loadCurrentUser as any);
+app.use(flashMiddleware as any);
 
 app.use((req, res, next) => {
   res.locals.appEnv = config.env;

@@ -52,23 +52,23 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(cookieParser(config.sessionSecret));
 
-app.use(
-  session({
-    store: new PgStore({
-      conString: config.databaseUrl,
-      createTableIfMissing: true
-    }),
-    secret: config.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: config.sessionSecure,
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    }
-  })
-);
+const sessionMiddleware = session({
+  store: new PgStore({
+    conString: config.databaseUrl,
+    createTableIfMissing: true
+  }),
+  secret: config.sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: config.sessionSecure,
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  }
+});
+
+app.use(sessionMiddleware as any);
 
 app.use((req, res, next) => (doubleCsrfProtection as any)(req, res, next));
 app.use((req, res, next) => loadCurrentUser(req, res, next));

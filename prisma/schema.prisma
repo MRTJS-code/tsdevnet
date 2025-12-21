@@ -116,6 +116,8 @@ model AuditLog {
   id         String     @id @default(uuid())
   actorType  ActorType
   actorId    String?
+  user       User?      @relation(fields: [userId], references: [id])
+  userId     String?
   action     String
   metadata   Json?
   createdAt  DateTime   @default(now())

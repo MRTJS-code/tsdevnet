@@ -5,7 +5,6 @@ import connectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { doubleCsrf } from "csrf-csrf";
-import type { RequestHandler } from "express";
 import { config } from "./config";
 import { loadCurrentUser } from "./middleware/auth";
 import { flashMiddleware } from "./middleware/flash";
@@ -71,9 +70,9 @@ app.use(
   })
 );
 
-app.use(doubleCsrfProtection as any);
-app.use(loadCurrentUser as any);
-app.use(flashMiddleware as any);
+app.use((req, res, next) => (doubleCsrfProtection as any)(req, res, next));
+app.use((req, res, next) => loadCurrentUser(req, res, next));
+app.use((req, res, next) => flashMiddleware(req, res, next));
 
 app.use((req, res, next) => {
   res.locals.appEnv = config.env;

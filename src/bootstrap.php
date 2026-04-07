@@ -15,7 +15,7 @@ if (!isset($config['app_env'])) {
 }
 
 date_default_timezone_set('UTC');
-mb_internal_encoding('UTF-8');
+//mb_internal_encoding('UTF-8');
 
 $secureCookie = $config['session_secure'] ?? (!empty($_SERVER['HTTPS']));
 session_name('tsdevnet_sid');

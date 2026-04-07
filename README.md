@@ -91,3 +91,48 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
   php -S localhost:8000 -t public
   ```
 - Ensure MySQL + Turnstile keys are set; in `dev` you can view magic links directly after signup/login.
+# Phase 1A Refactor Notes
+
+This repository now runs on a lightweight layered PHP structure aimed at traditional low-cost PHP/LAMP hosting:
+
+- `public/` entry points remain simple and hosting-friendly
+- `src/Support/` centralises bootstrap, env/config loading, DB, sessions, security headers, Turnstile, mail, and view rendering
+- `src/Repositories/` contains MySQL access
+- `src/Services/` contains auth, magic link, approval, chat, audit, and rate limit logic
+- `src/Chat/` provides the rule-based provider seam for later AI integration
+- `src/Guards/` protects user and admin routes
+- `views/` contains reusable server-rendered templates
+
+## Quick setup
+
+1. Copy `.env.example` to `.env` and set DB, app URL, mail, Turnstile, and admin values.
+2. Optionally copy `config/config.example.php` to `config/config.php` for local overrides that stay off git.
+3. Run:
+   ```sh
+   mysql -u USER -p -h HOST DB_NAME < migrations/001_init.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/002_phase1a_indexes.sql
+   ```
+4. For local development:
+   ```sh
+   php -S localhost:8000 -t public
+   ```
+
+## Phase 1A security posture
+
+- magic-link auth only for recruiter users
+- hashed one-time tokens with expiry
+- generic login responses to avoid email enumeration
+- Turnstile on signup and login
+- rate limiting backed by MySQL
+- CSRF and same-origin checks on state-changing requests
+- hardened sessions
+- session-based admin login replacing HTTP Basic Auth
+- audit logging hooks across auth, admin actions, and chat
+
+## Notes
+
+- In `APP_ENV=dev`, signup/login exposes the magic link onscreen for local testing.
+- In `APP_ENV=dev`, Turnstile is bypassed if no secret key is configured.
+- `ADMIN_PASSWORD_HASH` should be produced with PHP `password_hash()`.
+
+---

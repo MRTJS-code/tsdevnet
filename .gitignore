@@ -1,0 +1,10 @@
+/vendor/
+/config/config.php
+/.env
+/.env.local
+/.phpunit.result.cache
+/storage/
+/node_modules/
+Thumbs.db
+Desktop.ini
+

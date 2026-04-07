@@ -1,45 +1,70 @@
 <?php
 declare(strict_types=1);
 
-$root = dirname(__DIR__);
-$configFile = $root . '/config/config.php';
-if (!file_exists($configFile)) {
-    http_response_code(500);
-    echo "Missing config.php. Copy config/config.example.php to config/config.php and configure.";
-    exit;
-}
-$config = require $configFile;
+use App\Chat\RuleBasedChatProvider;
+use App\Repositories\AuditLogRepository;
+use App\Repositories\ConversationRepository;
+use App\Repositories\MessageRepository;
+use App\Repositories\RateLimitRepository;
+use App\Repositories\TokenRepository;
+use App\Repositories\UserRepository;
+use App\Services\AdminAuthService;
+use App\Services\ApprovalService;
+use App\Services\AuditService;
+use App\Services\AuthService;
+use App\Services\ChatService;
+use App\Services\MagicLinkService;
+use App\Services\RateLimitService;
+use App\Services\UserService;
+use App\Support\Database;
+use App\Support\Mailer;
+use App\Support\Security;
+use App\Support\Session;
 
-if (!isset($config['app_env'])) {
-    $config['app_env'] = 'prod';
-}
+$root = dirname(__DIR__);
+
+require_once __DIR__ . '/Support/Autoloader.php';
+
+$config = require $root . '/config/app.php';
 
 date_default_timezone_set('UTC');
-//mb_internal_encoding('UTF-8');
+Session::start($config);
+Security::sendHeaders($config);
 
-$secureCookie = $config['session_secure'] ?? (!empty($_SERVER['HTTPS']));
-session_name('tsdevnet_sid');
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'secure' => $secureCookie,
-    'httponly' => true,
-    'samesite' => 'Lax',
-]);
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-require_once $root . '/src/Util.php';
-Util::sendSecurityHeaders();
-
-require_once $root . '/src/Db.php';
-require_once $root . '/src/RateLimiter.php';
-require_once $root . '/src/Turnstile.php';
-require_once $root . '/src/Mailer.php';
-require_once $root . '/src/Auth.php';
-require_once $root . '/src/ChatService.php';
-
-if (file_exists($root . '/vendor/autoload.php')) {
+if (is_file($root . '/vendor/autoload.php')) {
     require_once $root . '/vendor/autoload.php';
 }
+
+$pdo = Database::connect($config);
+
+$userRepository = new UserRepository($pdo);
+$tokenRepository = new TokenRepository($pdo);
+$conversationRepository = new ConversationRepository($pdo);
+$messageRepository = new MessageRepository($pdo);
+$auditLogRepository = new AuditLogRepository($pdo);
+$rateLimitRepository = new RateLimitRepository($pdo);
+
+$auditService = new AuditService($auditLogRepository);
+$rateLimitService = new RateLimitService($rateLimitRepository);
+$magicLinkService = new MagicLinkService($pdo, $tokenRepository, $userRepository, $auditService, $config);
+$mailer = new Mailer($config);
+$authService = new AuthService($userRepository, $auditService);
+$userService = new UserService($userRepository, $magicLinkService, $mailer, $auditService, $config);
+$approvalService = new ApprovalService($userRepository, $conversationRepository, $messageRepository, $auditService);
+$adminAuthService = new AdminAuthService($auditService, $config);
+$chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider(), $auditService);
+
+return [
+    'config' => $config,
+    'pdo' => $pdo,
+    'services' => [
+        'audit' => $auditService,
+        'auth' => $authService,
+        'user' => $userService,
+        'magic_links' => $magicLinkService,
+        'rate_limits' => $rateLimitService,
+        'approval' => $approvalService,
+        'admin_auth' => $adminAuthService,
+        'chat' => $chatService,
+    ],
+];

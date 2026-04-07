@@ -1,39 +1,21 @@
 <?php
-// Copy this file to config.php and fill in secrets. Exclude config.php from git.
+declare(strict_types=1);
+
+// Optional local overrides. Keep real secrets in .env or environment variables.
 return [
-    'app_env' => 'dev', // dev | prod
-    'app_url' => 'https://example.com', // base URL for magic links
-    'app_name' => 'Tony Smith Recruiter Portal',
-    'session_secure' => false, // set true when serving over HTTPS
-
-    'db' => [
-        'host' => '127.0.0.1',
-        'port' => 3306,
-        'name' => 'tsdevnet',
-        'user' => 'root',
-        'pass' => 'password',
-        'charset' => 'utf8mb4',
-    ],
-
+    'app_env' => 'dev',
+    'app_url' => 'http://localhost:8000',
     'turnstile' => [
         'site_key' => '',
         'secret_key' => '',
     ],
-
-    'mail' => [
-        'from_email' => 'noreply@example.com',
-        'from_name' => 'Tony Smith',
-        'smtp_host' => 'localhost',
-        'smtp_port' => 25,
-        'smtp_username' => null,
-        'smtp_password' => null,
-        'smtp_secure' => null, // 'tls' or 'ssl' if needed
+    'db' => [
+        'name' => 'tsdevnet',
+        'user' => 'root',
+        'pass' => 'password',
     ],
-
     'admin' => [
-        'user' => 'admin',
-        'pass' => 'changeme',
+        'username' => 'admin',
+        'password_hash' => '$2y$10$QdE6jCz1ZBz0pQ9uB6cK4O.0z0N0Q6qF9xC0G6jR7f4kD1PzWZqle',
     ],
-
-    'magic_link_ttl' => 900, // 15 minutes
 ];

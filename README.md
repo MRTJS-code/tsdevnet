@@ -144,6 +144,18 @@ Admin flow:
   php -S localhost:8000 -t public
   ```
 - Ensure MySQL + Turnstile keys are set; in `dev` you can view magic links directly after signup/login.
+
+## Automated tests
+- Run the lightweight native PHP test suite with:
+  ```sh
+  php tests/run.php
+  ```
+- Current automated coverage focuses on homepage module repositories and homepage assembly using isolated in-memory SQLite fixtures.
+- To run the real MySQL migration integration test as well:
+  ```sh
+  php tests/run.php --mysql-migrations
+  ```
+- The MySQL migration test creates a disposable temporary database from your configured DB connection, applies all migrations, verifies key schema objects, and drops that database during cleanup.
 # Phase 1A Refactor Notes
 
 This repository now runs on a lightweight layered PHP structure aimed at traditional low-cost PHP/LAMP hosting:

@@ -92,6 +92,15 @@ Suggested structure:
 
 Exact tooling can evolve, but tests should stay aligned with repository/service boundaries.
 
+Current repo command:
+- `php tests/run.php`
+- `php tests/run.php --mysql-migrations`
+
+MySQL migration integration notes:
+- the migration integration test uses the configured MySQL connection from `config/app.php` and local env/config overrides
+- it creates a temporary database, runs all migrations in order, verifies key schema objects, and drops the temporary database after the test
+- this is the rollback mechanism for migration testing because MySQL DDL is not reliably transaction-safe across the full migration set
+
 ## Test data rules
 - Reusable committed test data must remain generic.
 - Local Tony-only data must not be required for public CI/dev tests.

@@ -6,6 +6,8 @@
 /storage/
 /node_modules/
 /scripts/local/
+/public/uploads/local/
+/public/uploads/private/
+/docs/*.local.md
 Thumbs.db
 Desktop.ini
-

@@ -82,4 +82,30 @@ final class Util
             default => ucwords(str_replace('_', ' ', $sectionKey)),
         };
     }
+
+    public static function homepageModuleLabel(string $moduleType): string
+    {
+        return match ($moduleType) {
+            'rich_text' => 'Rich text',
+            'experience_timeline' => 'Experience timeline',
+            'certifications' => 'Certifications',
+            'technology_groups' => 'Technology groups',
+            'featured_portfolio' => 'Featured portfolio',
+            'testimonials' => 'Testimonials',
+            'cta_info' => 'CTA / info',
+            default => ucwords(str_replace('_', ' ', $moduleType)),
+        };
+    }
+
+    public static function homepageModuleEditorPath(string $moduleType): string
+    {
+        return match ($moduleType) {
+            'experience_timeline' => '/admin/homepage-experience.php',
+            'certifications' => '/admin/homepage-certifications.php',
+            'technology_groups' => '/admin/homepage-technologies.php',
+            'featured_portfolio' => '/admin/homepage-portfolio.php',
+            'testimonials' => '/admin/homepage-testimonials.php',
+            default => '',
+        };
+    }
 }

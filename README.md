@@ -1,25 +1,14 @@
 # Professional Profile and Recruiter Portal (PHP 8 + MySQL 8)
 
-## Phase 1D profile content update
-- `004_phase1c_homepage_typed_content.sql` remains the transitional typed-homepage step.
-- `005_profile_content_model.sql` is now the canonical profile-content schema for the homepage.
-- `006_homepage_layout_refinements.sql` adds homepage wrapper placement (`top`, `middle`, `bottom`) for flexible sections.
-- `content_blocks` and `content_items` remain available only for lightweight flexible text sections.
+## Modular homepage model
+- Hero is fixed and driven by `site_settings` plus the headshot document.
+- Footer/contact/CV is fixed and driven by `site_settings` plus the CV/social document links.
+- Everything in the middle of the homepage is now driven by ordered `homepage_modules`.
+- `module_rich_text_sections` stores inline payloads for rich text / CTA-info modules.
+- Structured payload data still lives in typed tables for experience, certifications, technology groups, portfolio items, and testimonials.
+- `content_blocks` and `content_items` remain in the repo only as legacy generic CMS tables and are no longer the canonical homepage driver.
 - Rule-based assistant knowledge remains DB-managed via `assistant_knowledge`.
 - Admin auth remains DB-backed via `admin_users`.
-- Run the migrations and seed scripts in this order:
-  ```sh
-  mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
-  mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
-  mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
-  mysql -u USER -p -h HOST DB_NAME < migrations/006_homepage_layout_refinements.sql
-  php scripts/seed_phase1b.php
-  php scripts/seed_profile_template.php
-  ```
-- `seed_phase1b.php` now handles Phase 1B bootstrap concerns only: admin user bootstrap and generic assistant rules.
-- `seed_profile_template.php` seeds neutral reusable profile content for forks.
-- Copy `scripts/local/seed_tony_profile.php.example` to `scripts/local/seed_tony_profile.php` for Tony-specific live content, then run it locally. Do not commit the copied file.
-- See `docs/homepage-content-model.md` for the earlier homepage model rationale. Phase 1D makes the profile-content tables canonical.
 
 Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basic CRM tables, and a demo chat UI.
 
@@ -48,22 +37,49 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
    Ensure `vendor/autoload.php` is uploaded with the app. If PHPMailer is missing, the Mailer falls back to `mail()`.
 
 4. Deploy files; point web root to `public/`. Keep `config.php` **out of version control**.
-5. For the canonical profile-content model, then run:
+5. Run the full schema and bootstrap sequence:
    ```sh
    mysql -u USER -p -h HOST DB_NAME < migrations/002_phase1a_indexes.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/006_homepage_layout_refinements.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/007_homepage_modules.sql
    php scripts/seed_phase1b.php
-   php scripts/seed_profile_template.php
+   php scripts/reset_content.php
+   php scripts/seed_reusable_content.php
    ```
-6. For a local/private Tony deployment only:
+6. Reusable content flow:
+   - `scripts/reset_content.php` clears homepage/profile/CMS content tables only.
+   - `scripts/seed_reusable_content.php` reloads committed generic test/demo content.
+   - `scripts/seed_profile_template.php` is kept as a compatibility wrapper around `scripts/seed_reusable_content.php`.
+7. For a local/private Tony deployment only:
    ```sh
+   copy scripts\\local\\reset_tony_content.php.example scripts\\local\\reset_tony_content.php
    copy scripts\\local\\seed_tony_profile.php.example scripts\\local\\seed_tony_profile.php
+   php scripts\\local\\reset_tony_content.php
    php scripts\\local\\seed_tony_profile.php
    ```
-   Keep `scripts/local/seed_tony_profile.php` out of version control.
+   Keep copied `scripts/local/*.php` files out of version control.
+
+## Homepage content model
+- Fixed hero payload
+- Ordered homepage modules for the middle of the page
+- Fixed footer/contact/CV payload
+
+Initial module types:
+- rich text / executive summary
+- experience timeline
+- certifications
+- technology groups
+- featured portfolio
+- testimonials
+- CTA / info block
+
+Admin flow:
+- `/admin/homepage-hero.php` manages the fixed hero.
+- `/admin/homepage-modules.php` manages ordered middle-page modules.
+- `/admin/homepage-footer.php` and `/admin/homepage-documents.php` manage the fixed footer/contact/documents.
 
 ## Turnstile
 - Create a Turnstile site + secret key at Cloudflare.

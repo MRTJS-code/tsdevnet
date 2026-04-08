@@ -12,11 +12,13 @@ use App\Repositories\HomepageCertificationRepository;
 use App\Repositories\HomepageDocumentRepository;
 use App\Repositories\HomepageExperienceRepository;
 use App\Repositories\HomepageExperienceHighlightRepository;
+use App\Repositories\HomepageModuleRepository;
 use App\Repositories\HomepagePortfolioRepository;
 use App\Repositories\HomepageTechnologyEntryRepository;
 use App\Repositories\HomepageTechnologyGroupRepository;
 use App\Repositories\HomepageTestimonialRepository;
 use App\Repositories\MessageRepository;
+use App\Repositories\ModuleRichTextSectionRepository;
 use App\Repositories\RateLimitRepository;
 use App\Repositories\SiteSettingRepository;
 use App\Repositories\TokenRepository;
@@ -26,10 +28,10 @@ use App\Services\ApprovalService;
 use App\Services\AuditService;
 use App\Services\AuthService;
 use App\Services\ChatService;
+use App\Services\HomepageContentService;
 use App\Services\HomepageUploadService;
 use App\Services\MagicLinkService;
 use App\Services\RateLimitService;
-use App\Services\SiteContentService;
 use App\Services\UserService;
 use App\Support\Database;
 use App\Support\Mailer;
@@ -71,6 +73,8 @@ $homepageTechnologyEntryRepository = new HomepageTechnologyEntryRepository($pdo)
 $homepagePortfolioRepository = new HomepagePortfolioRepository($pdo);
 $homepageTestimonialRepository = new HomepageTestimonialRepository($pdo);
 $homepageDocumentRepository = new HomepageDocumentRepository($pdo);
+$homepageModuleRepository = new HomepageModuleRepository($pdo);
+$moduleRichTextSectionRepository = new ModuleRichTextSectionRepository($pdo);
 
 $auditService = new AuditService($auditLogRepository);
 $rateLimitService = new RateLimitService($rateLimitRepository);
@@ -81,7 +85,7 @@ $userService = new UserService($userRepository, $magicLinkService, $mailer, $aud
 $approvalService = new ApprovalService($userRepository, $conversationRepository, $messageRepository, $auditService);
 $adminAuthService = new AdminAuthService($adminUserRepository, $auditService);
 $homepageUploadService = new HomepageUploadService($root);
-$siteContentService = new SiteContentService(
+$siteContentService = new HomepageContentService(
     $siteSettingRepository,
     $homepageExperienceRepository,
     $homepageExperienceHighlightRepository,
@@ -91,8 +95,8 @@ $siteContentService = new SiteContentService(
     $homepagePortfolioRepository,
     $homepageTestimonialRepository,
     $homepageDocumentRepository,
-    $contentBlockRepository,
-    $contentItemRepository
+    $homepageModuleRepository,
+    $moduleRichTextSectionRepository
 );
 $chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider($assistantKnowledgeRepository), $auditService);
 
@@ -113,6 +117,8 @@ return [
         'homepage_portfolio' => $homepagePortfolioRepository,
         'homepage_testimonials' => $homepageTestimonialRepository,
         'homepage_documents' => $homepageDocumentRepository,
+        'homepage_modules' => $homepageModuleRepository,
+        'module_rich_text_sections' => $moduleRichTextSectionRepository,
     ],
     'services' => [
         'audit' => $auditService,

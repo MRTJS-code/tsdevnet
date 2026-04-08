@@ -1,20 +1,18 @@
 <?php
 declare(strict_types=1);
 
-use App\Repositories\ContentBlockRepository;
 use App\Repositories\HomepageCertificationRepository;
 use App\Repositories\HomepageDocumentRepository;
 use App\Repositories\HomepageExperienceHighlightRepository;
 use App\Repositories\HomepageExperienceRepository;
+use App\Repositories\HomepageModuleRepository;
 use App\Repositories\HomepagePortfolioRepository;
 use App\Repositories\HomepageTechnologyEntryRepository;
 use App\Repositories\HomepageTechnologyGroupRepository;
 use App\Repositories\HomepageTestimonialRepository;
+use App\Repositories\ModuleRichTextSectionRepository;
 use App\Repositories\SiteSettingRepository;
 use App\Support\Database;
-
-require __DIR__ . '/seed_reusable_content.php';
-return;
 
 if (PHP_SAPI !== 'cli') {
     fwrite(STDERR, "Run this script from the command line.\n");
@@ -27,7 +25,6 @@ require_once $root . '/src/Support/Autoloader.php';
 $config = require $root . '/config/app.php';
 $pdo = Database::connect($config);
 
-$blocks = new ContentBlockRepository($pdo);
 $settings = new SiteSettingRepository($pdo);
 $experience = new HomepageExperienceRepository($pdo);
 $experienceHighlights = new HomepageExperienceHighlightRepository($pdo);
@@ -37,10 +34,16 @@ $technologyEntries = new HomepageTechnologyEntryRepository($pdo);
 $portfolio = new HomepagePortfolioRepository($pdo);
 $testimonials = new HomepageTestimonialRepository($pdo);
 $documents = new HomepageDocumentRepository($pdo);
+$modules = new HomepageModuleRepository($pdo);
+$richTextSections = new ModuleRichTextSectionRepository($pdo);
 
 $pdo->beginTransaction();
 
 try {
+    $pdo->exec('DELETE FROM module_rich_text_sections');
+    $pdo->exec('DELETE FROM homepage_modules');
+    $pdo->exec('DELETE FROM content_items');
+    $pdo->exec('DELETE FROM content_blocks');
     $pdo->exec('DELETE FROM profile_experience_highlights');
     $pdo->exec('DELETE FROM profile_experience');
     $pdo->exec('DELETE FROM profile_certifications');
@@ -74,9 +77,9 @@ try {
     $settings->replaceSingleton([
         'site_title' => 'Professional Profile and Recruiter Portal',
         'hero_eyebrow' => 'Executive Profile',
-        'hero_headline' => 'A reusable executive-profile homepage with a canonical profile content model.',
-        'hero_subheadline' => 'This template stays forkable while allowing each deployment to maintain structured profile content through admin and local seed paths.',
-        'hero_supporting_text' => 'Use the canonical profile tables for timeline, certifications, grouped technologies, portfolio, testimonials, and documents. Keep personal content out of the public template seed.',
+        'hero_headline' => 'A reusable executive-profile homepage with modular content blocks.',
+        'hero_subheadline' => 'This template stays forkable while allowing each deployment to manage ordered content modules through admin and local seed paths.',
+        'hero_supporting_text' => 'Use the module registry for ordered middle-page content while keeping hero and footer as fixed design regions.',
         'profile_name' => 'Profile Name',
         'profile_role' => 'Enterprise systems, data, and integration leader',
         'profile_location' => 'Region or remote availability',
@@ -94,8 +97,6 @@ try {
         'contact_location' => 'Region or remote availability',
         'footer_heading' => 'Discuss leadership, delivery, and platform change.',
         'footer_body' => 'Replace this placeholder through admin or a private local seed with real contact guidance and public document paths.',
-        'chatbot_teaser_enabled' => 1,
-        'chatbot_teaser_label' => 'Assistant pathway ready for the next phase',
         'headshot_document_id' => $headshotId,
         'cv_document_id' => $cvId,
     ]);
@@ -186,39 +187,103 @@ try {
         'is_active' => 1,
     ]);
 
-    $blocks->upsertBySectionKey([
-        'section_key' => 'homepage_intro',
-        'homepage_position' => 'top',
-        'title' => 'Core strengths',
-        'subtitle' => 'Flexible section wrapper',
-        'body_text' => 'Use this wrapper to position the strongest capabilities between the hero and the timeline while keeping the underlying strengths in typed technology records.',
-        'meta_json' => null,
-        'sort_order' => 10,
-        'is_active' => 1,
-    ]);
-    $blocks->upsertBySectionKey([
-        'section_key' => 'grouped_capability_intro',
-        'homepage_position' => 'middle',
-        'title' => 'Grouped capability',
-        'subtitle' => 'Flexible section wrapper',
-        'body_text' => 'This middle wrapper introduces the three typed capability cards: certifications, supporting tools and platforms, and software exposure.',
-        'meta_json' => null,
-        'sort_order' => 20,
-        'is_active' => 1,
-    ]);
-    $blocks->upsertBySectionKey([
-        'section_key' => 'chatbot_teaser',
-        'homepage_position' => 'bottom',
-        'title' => 'Chatbot teaser placeholder',
-        'subtitle' => 'Optional flexible content',
-        'body_text' => 'A future gated assistant or teaser can be introduced above the footer without redesigning the page structure.',
-        'meta_json' => null,
-        'sort_order' => 30,
-        'is_active' => 1,
-    ]);
+    $moduleSpecs = [
+        [
+            'module_key' => 'executive_summary',
+            'module_type' => 'rich_text',
+            'eyebrow' => 'Executive summary',
+            'title' => 'Core strengths',
+            'intro_text' => 'Use this module to frame the strongest capabilities between the hero and the timeline.',
+            'anchor_id' => 'executive-summary',
+            'style_variant' => 'summary',
+            'display_order' => 10,
+            'is_active' => 1,
+            'content' => [
+                'body_text' => 'Use admin to add a concise executive summary or information block for the middle of the homepage.',
+            ],
+        ],
+        [
+            'module_key' => 'experience_timeline',
+            'module_type' => 'experience_timeline',
+            'eyebrow' => 'Experience',
+            'title' => 'Condensed timeline',
+            'intro_text' => 'Ordered career highlights and selected outcomes.',
+            'anchor_id' => 'experience',
+            'style_variant' => 'timeline',
+            'display_order' => 20,
+            'is_active' => 1,
+        ],
+        [
+            'module_key' => 'certifications',
+            'module_type' => 'certifications',
+            'eyebrow' => 'Credentials',
+            'title' => 'Certifications',
+            'intro_text' => 'Professional qualifications and current credentials.',
+            'anchor_id' => 'certifications',
+            'style_variant' => 'cards',
+            'display_order' => 30,
+            'is_active' => 1,
+        ],
+        [
+            'module_key' => 'technology_groups',
+            'module_type' => 'technology_groups',
+            'eyebrow' => 'Capability',
+            'title' => 'Grouped capability',
+            'intro_text' => 'Supporting tools, strengths, and exposure grouped for quick scanning.',
+            'anchor_id' => 'technology-groups',
+            'style_variant' => 'grouped-capability',
+            'display_order' => 40,
+            'is_active' => 1,
+        ],
+        [
+            'module_key' => 'featured_portfolio',
+            'module_type' => 'featured_portfolio',
+            'eyebrow' => 'Portfolio',
+            'title' => 'Featured work',
+            'intro_text' => 'Selected initiatives and delivery outcomes.',
+            'anchor_id' => 'portfolio',
+            'style_variant' => 'cards',
+            'display_order' => 50,
+            'is_active' => 1,
+        ],
+        [
+            'module_key' => 'testimonials',
+            'module_type' => 'testimonials',
+            'eyebrow' => 'Testimonials',
+            'title' => 'Selected references',
+            'intro_text' => 'Short quote cards and public social proof.',
+            'anchor_id' => 'testimonials',
+            'style_variant' => 'quotes',
+            'display_order' => 60,
+            'is_active' => 1,
+        ],
+        [
+            'module_key' => 'chatbot_teaser',
+            'module_type' => 'cta_info',
+            'eyebrow' => 'Optional CTA',
+            'title' => 'Chatbot teaser placeholder',
+            'intro_text' => 'Optional CTA/info block above the footer.',
+            'anchor_id' => 'chatbot-teaser',
+            'style_variant' => 'callout',
+            'display_order' => 70,
+            'is_active' => 1,
+            'content' => [
+                'body_text' => 'A future gated assistant or teaser can be introduced above the footer without redesigning the homepage.',
+            ],
+        ],
+    ];
+
+    foreach ($moduleSpecs as $moduleSpec) {
+        $content = $moduleSpec['content'] ?? null;
+        unset($moduleSpec['content']);
+        $moduleId = $modules->create($moduleSpec);
+        if (is_array($content)) {
+            $richTextSections->upsertForModule($moduleId, $content);
+        }
+    }
 
     $pdo->commit();
-    fwrite(STDOUT, "Canonical profile template content seeded.\n");
+    fwrite(STDOUT, "Reusable homepage/profile content seeded.\n");
 } catch (Throwable $exception) {
     $pdo->rollBack();
     fwrite(STDERR, $exception->getMessage() . "\n");

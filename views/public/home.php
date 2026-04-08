@@ -1,112 +1,138 @@
+<?php
+use App\Support\Util;
+
+$hero = $homepage['hero'];
+$summaryCards = $homepage['summary_cards'];
+$about = $homepage['about'];
+$achievements = $homepage['achievements'];
+$technologyTags = $homepage['technology_tags'];
+$operatingApproach = $homepage['operating_approach'];
+$contact = $homepage['contact_cta'];
+?>
 <main class="site-shell">
     <section class="hero">
         <div class="hero__content">
-            <p class="eyebrow">Tony Smith | Business Systems, Data and Technology Leadership</p>
-            <h1>Practical leadership for systems, data, delivery, and transformation.</h1>
-            <p class="lede">Tony helps organisations improve operating clarity across business systems, delivery governance, data capability, and modernisation work. The public site is open; the recruiter assistant is intentionally gated and security-conscious.</p>
-            <div class="actions">
-                <a class="btn primary" href="#contact">Speak with Tony</a>
-                <a class="btn ghost" href="/signup.php">Request recruiter access</a>
-                <a class="btn ghost" href="/login.php">Portal login</a>
-            </div>
+            <?php if (!empty($hero['meta']['eyebrow'])): ?>
+                <p class="eyebrow"><?= Util::e($hero['meta']['eyebrow']) ?></p>
+            <?php endif; ?>
+            <h1><?= Util::e($hero['title']) ?></h1>
+            <?php if (!empty($hero['subtitle'])): ?>
+                <p class="lede"><?= Util::e($hero['subtitle']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($hero['body_text'])): ?>
+                <p class="lede"><?= Util::e($hero['body_text']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($hero['items'])): ?>
+                <div class="actions">
+                    <?php foreach ($hero['items'] as $item): ?>
+                        <?php $style = ($item['meta']['style'] ?? 'ghost') === 'primary' ? 'primary' : 'ghost'; ?>
+                        <a class="btn <?= Util::e($style) ?>" href="<?= Util::e($item['link_url'] ?: '#') ?>"><?= Util::e($item['title'] ?: $item['label']) ?></a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 
-    <section class="section section--grid">
-        <article class="card stat-card">
-            <p class="stat-card__label">Focus</p>
-            <h2>Business systems and data leadership</h2>
-            <p>Operating model design, delivery structure, system uplift, and modernisation decisions that stay grounded in business value.</p>
-        </article>
-        <article class="card stat-card">
-            <p class="stat-card__label">Style</p>
-            <h2>Senior, calm, delivery-oriented</h2>
-            <p>Strong governance without theatre, clear decision-making, and practical change sequencing for constrained environments.</p>
-        </article>
-        <article class="card stat-card">
-            <p class="stat-card__label">Portal</p>
-            <h2>Recruiter-facing assistant</h2>
-            <p>Gated access, magic-link auth, Turnstile protection, manual approval tiers, and a server-side chat seam ready for later AI integration.</p>
-        </article>
-    </section>
+    <?php if (!empty($summaryCards['items'])): ?>
+        <section class="section section--grid">
+            <?php foreach ($summaryCards['items'] as $item): ?>
+                <article class="card stat-card">
+                    <?php if (!empty($item['label'])): ?>
+                        <p class="stat-card__label"><?= Util::e($item['label']) ?></p>
+                    <?php endif; ?>
+                    <h2><?= Util::e($item['title']) ?></h2>
+                    <p><?= Util::e($item['body_text']) ?></p>
+                </article>
+            <?php endforeach; ?>
+        </section>
+    <?php endif; ?>
 
     <section class="section section--content">
         <div class="section-heading">
-            <p class="eyebrow">About</p>
-            <h2>What Tony does</h2>
+            <?php if (!empty($about['subtitle'])): ?>
+                <p class="eyebrow"><?= Util::e($about['subtitle']) ?></p>
+            <?php endif; ?>
+            <h2><?= Util::e($about['title']) ?></h2>
         </div>
+        <?php if (!empty($about['body_text'])): ?>
+            <p class="lede"><?= Util::e($about['body_text']) ?></p>
+        <?php endif; ?>
         <div class="content-grid">
-            <article class="card">
-                <h3>Leadership and operating model</h3>
-                <p>Shapes teams, delivery cadences, governance rhythms, and decision rights so technology effort becomes legible to the business.</p>
-            </article>
-            <article class="card">
-                <h3>Systems and data</h3>
-                <p>Works across ERP, CRM, integration, reporting, data quality, and platform transition work with a bias toward sustainable simplification.</p>
-            </article>
-            <article class="card">
-                <h3>Transformation delivery</h3>
-                <p>Aligns architecture, delivery planning, stakeholder communication, and risk posture without drifting into enterprise-only overhead.</p>
-            </article>
+            <?php foreach ($about['items'] as $item): ?>
+                <article class="card">
+                    <h3><?= Util::e($item['title']) ?></h3>
+                    <p><?= Util::e($item['body_text']) ?></p>
+                </article>
+            <?php endforeach; ?>
         </div>
     </section>
 
     <section class="section section--split">
         <div>
-            <p class="eyebrow">Selected Achievements</p>
-            <h2>Representative outcomes</h2>
+            <?php if (!empty($achievements['meta']['eyebrow'])): ?>
+                <p class="eyebrow"><?= Util::e($achievements['meta']['eyebrow']) ?></p>
+            <?php endif; ?>
+            <h2><?= Util::e($achievements['title']) ?></h2>
+            <?php if (!empty($achievements['body_text'])): ?>
+                <p class="lede"><?= Util::e($achievements['body_text']) ?></p>
+            <?php endif; ?>
             <ul class="feature-list">
-                <li>Stabilised business-critical delivery and governance in mixed legacy and modern estates.</li>
-                <li>Improved clarity between technology teams, operational leaders, and executive stakeholders.</li>
-                <li>Led pragmatic systems and data uplift work without overbuilding architecture or process.</li>
+                <?php foreach ($achievements['items'] as $item): ?>
+                    <li><?= Util::e($item['body_text'] ?: $item['title']) ?></li>
+                <?php endforeach; ?>
             </ul>
         </div>
         <div class="card">
-            <p class="eyebrow">Technology Exposure</p>
+            <?php if (!empty($technologyTags['meta']['eyebrow'])): ?>
+                <p class="eyebrow"><?= Util::e($technologyTags['meta']['eyebrow']) ?></p>
+            <?php endif; ?>
+            <h2><?= Util::e($technologyTags['title']) ?></h2>
+            <?php if (!empty($technologyTags['body_text'])): ?>
+                <p class="lede"><?= Util::e($technologyTags['body_text']) ?></p>
+            <?php endif; ?>
             <div class="tag-list">
-                <span>PHP</span>
-                <span>MySQL</span>
-                <span>Azure</span>
-                <span>ERP / CRM</span>
-                <span>Integration</span>
-                <span>BI / Data</span>
-                <span>Governance</span>
-                <span>Modernisation</span>
+                <?php foreach ($technologyTags['items'] as $item): ?>
+                    <span><?= Util::e($item['title'] ?: $item['label']) ?></span>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
 
     <section class="section section--content">
         <div class="section-heading">
-            <p class="eyebrow">Operating Approach</p>
-            <h2>How Tony works</h2>
+            <?php if (!empty($operatingApproach['meta']['eyebrow'])): ?>
+                <p class="eyebrow"><?= Util::e($operatingApproach['meta']['eyebrow']) ?></p>
+            <?php endif; ?>
+            <h2><?= Util::e($operatingApproach['title']) ?></h2>
         </div>
+        <?php if (!empty($operatingApproach['body_text'])): ?>
+            <p class="lede"><?= Util::e($operatingApproach['body_text']) ?></p>
+        <?php endif; ?>
         <div class="content-grid">
-            <article class="card">
-                <h3>Credible governance</h3>
-                <p>Enough structure to manage risk and delivery quality, without slowing the organisation down for its own sake.</p>
-            </article>
-            <article class="card">
-                <h3>Useful architecture</h3>
-                <p>Architecture is treated as a decision-support function tied to delivery and operations, not a detached artefact.</p>
-            </article>
-            <article class="card">
-                <h3>Phaseable product thinking</h3>
-                <p>Build foundations first, keep options open, and introduce complexity only when it earns its place.</p>
-            </article>
+            <?php foreach ($operatingApproach['items'] as $item): ?>
+                <article class="card">
+                    <h3><?= Util::e($item['title']) ?></h3>
+                    <p><?= Util::e($item['body_text']) ?></p>
+                </article>
+            <?php endforeach; ?>
         </div>
     </section>
 
-    <section id="contact" class="section section--cta">
+    <section id="<?= Util::e($contact['meta']['anchor'] ?? 'contact') ?>" class="section section--cta">
         <div>
-            <p class="eyebrow">Contact</p>
-            <h2>Recruiter portal and direct contact</h2>
-            <p class="lede">Recruiters can request gated access for the assistant portal. New accounts start as pending with limited demo access until reviewed.</p>
+            <?php if (!empty($contact['subtitle'])): ?>
+                <p class="eyebrow"><?= Util::e($contact['subtitle']) ?></p>
+            <?php endif; ?>
+            <h2><?= Util::e($contact['title']) ?></h2>
+            <p class="lede"><?= Util::e($contact['body_text']) ?></p>
         </div>
-        <div class="cta-actions">
-            <a class="btn primary" href="/signup.php">Request portal access</a>
-            <a class="btn ghost" href="/login.php">Use a magic link</a>
-        </div>
+        <?php if (!empty($contact['items'])): ?>
+            <div class="cta-actions">
+                <?php foreach ($contact['items'] as $item): ?>
+                    <?php $style = ($item['meta']['style'] ?? 'ghost') === 'primary' ? 'primary' : 'ghost'; ?>
+                    <a class="btn <?= Util::e($style) ?>" href="<?= Util::e($item['link_url'] ?: '#') ?>"><?= Util::e($item['title'] ?: $item['label']) ?></a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </section>
 </main>
-

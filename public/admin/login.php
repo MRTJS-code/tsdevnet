@@ -11,6 +11,7 @@ $app = require __DIR__ . '/../../src/bootstrap.php';
 $config = $app['config'];
 $errors = [];
 $old = $_POST;
+$adminCount = $app['repositories']['admin_users']->countActive();
 
 if ($app['services']['admin_auth']->isAuthenticated()) {
     Response::redirect('/admin/index.php');
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         $ok = $app['services']['admin_auth']->login(
-            trim((string) ($_POST['username'] ?? '')),
+            trim((string) ($_POST['email'] ?? '')),
             (string) ($_POST['password'] ?? ''),
             Util::clientIp()
         );
@@ -53,4 +54,5 @@ View::render('admin/login', [
     'bodyClass' => 'page',
     'errors' => $errors,
     'old' => $old,
+    'adminCount' => $adminCount,
 ]);

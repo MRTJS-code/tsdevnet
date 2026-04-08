@@ -22,7 +22,7 @@ use App\Support\Util;
 
     <section class="chat">
         <div class="chat__window" id="chat-window">
-            <div class="message system">Welcome. Ask about delivery scope, systems leadership, governance, or Tony's operating style.</div>
+            <div class="message system">Welcome. Ask about delivery scope, systems leadership, governance, or operating style.</div>
         </div>
         <form id="chat-form" class="chat__form">
             <input type="text" id="chat-input" name="message" placeholder="Ask a recruiter-facing question..." autocomplete="off" required>
@@ -31,4 +31,3 @@ use App\Support\Util;
         <meta name="csrf-token" content="<?= Util::e(Security::csrfToken()) ?>">
     </section>
 </main>
-

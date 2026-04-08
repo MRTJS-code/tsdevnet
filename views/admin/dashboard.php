@@ -6,6 +6,9 @@ use App\Support\Util;
     <div>
         <p class="eyebrow">Admin Console</p>
         <h1>Pending recruiter requests</h1>
+        <?php if (!empty($admin['display_name'])): ?>
+            <p class="help-text">Signed in as <?= Util::e($admin['display_name']) ?></p>
+        <?php endif; ?>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/logout.php">Sign out</a>
@@ -15,6 +18,27 @@ use App\Support\Util;
 <main class="admin-shell">
     <section class="card">
         <p class="help-text">Manual approval controls who gets full assistant access. All state changes are CSRF-protected and logged to the audit table.</p>
+    </section>
+
+    <section class="section section--grid">
+        <article class="card">
+            <p class="eyebrow">CMS</p>
+            <h2>Homepage blocks</h2>
+            <p>Manage curated homepage sections without storing personal copy in the repository.</p>
+            <a class="btn ghost" href="/admin/content-blocks.php">Manage blocks</a>
+        </article>
+        <article class="card">
+            <p class="eyebrow">CMS</p>
+            <h2>Homepage items</h2>
+            <p>Edit repeatable cards, achievements, tags, and contact links.</p>
+            <a class="btn ghost" href="/admin/content-items.php">Manage items</a>
+        </article>
+        <article class="card">
+            <p class="eyebrow">Assistant</p>
+            <h2>Knowledge rules</h2>
+            <p>Control the rule-based assistant responses and access-tier visibility.</p>
+            <a class="btn ghost" href="/admin/assistant-knowledge.php">Manage knowledge</a>
+        </article>
     </section>
 
     <section class="card">
@@ -59,4 +83,3 @@ use App\Support\Util;
         <?php endif; ?>
     </section>
 </main>
-

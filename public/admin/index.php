@@ -12,6 +12,7 @@ $app = require __DIR__ . '/../../src/bootstrap.php';
 
 $config = $app['config'];
 $approval = $app['services']['approval'];
+$admin = $app['services']['admin_auth']->currentAdmin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Security::enforceSameOrigin($config);
@@ -39,4 +40,5 @@ View::render('admin/dashboard', [
     'title' => 'Admin | ' . $config['app_name'],
     'bodyClass' => 'page',
     'pendingUsers' => $approval->pendingUsers(),
+    'admin' => $admin,
 ]);

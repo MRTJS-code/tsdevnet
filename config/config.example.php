@@ -15,7 +15,8 @@ return [
         'pass' => 'password',
     ],
     'admin' => [
-        'username' => 'admin',
-        'password_hash' => '$2y$10$QdE6jCz1ZBz0pQ9uB6cK4O.0z0N0Q6qF9xC0G6jR7f4kD1PzWZqle',
+        'seed_email' => 'admin@example.com',
+        'seed_password' => 'change-me-locally',
+        'seed_name' => 'Site Admin',
     ],
 ];

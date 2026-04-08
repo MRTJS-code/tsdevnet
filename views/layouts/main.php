@@ -6,8 +6,8 @@ use App\Support\Util;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= Util::e($title ?? 'Tony Smith') ?></title>
-    <meta name="description" content="<?= Util::e($metaDescription ?? 'Professional profile and gated recruiter portal for Tony Smith.') ?>">
+    <title><?= Util::e($title ?? 'Professional Profile') ?></title>
+    <meta name="description" content="<?= Util::e($metaDescription ?? 'Professional profile website with a gated recruiter portal.') ?>">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <?php if (!empty($turnstileEnabled)): ?>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -22,4 +22,3 @@ use App\Support\Util;
 <?= $content ?>
 </body>
 </html>
-

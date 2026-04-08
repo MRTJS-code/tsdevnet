@@ -2,8 +2,12 @@
 declare(strict_types=1);
 
 use App\Chat\RuleBasedChatProvider;
+use App\Repositories\AdminUserRepository;
+use App\Repositories\AssistantKnowledgeRepository;
 use App\Repositories\AuditLogRepository;
 use App\Repositories\ConversationRepository;
+use App\Repositories\ContentBlockRepository;
+use App\Repositories\ContentItemRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\RateLimitRepository;
 use App\Repositories\TokenRepository;
@@ -15,6 +19,7 @@ use App\Services\AuthService;
 use App\Services\ChatService;
 use App\Services\MagicLinkService;
 use App\Services\RateLimitService;
+use App\Services\SiteContentService;
 use App\Services\UserService;
 use App\Support\Database;
 use App\Support\Mailer;
@@ -38,11 +43,15 @@ if (is_file($root . '/vendor/autoload.php')) {
 $pdo = Database::connect($config);
 
 $userRepository = new UserRepository($pdo);
+$adminUserRepository = new AdminUserRepository($pdo);
 $tokenRepository = new TokenRepository($pdo);
 $conversationRepository = new ConversationRepository($pdo);
 $messageRepository = new MessageRepository($pdo);
 $auditLogRepository = new AuditLogRepository($pdo);
 $rateLimitRepository = new RateLimitRepository($pdo);
+$contentBlockRepository = new ContentBlockRepository($pdo);
+$contentItemRepository = new ContentItemRepository($pdo);
+$assistantKnowledgeRepository = new AssistantKnowledgeRepository($pdo);
 
 $auditService = new AuditService($auditLogRepository);
 $rateLimitService = new RateLimitService($rateLimitRepository);
@@ -51,12 +60,19 @@ $mailer = new Mailer($config);
 $authService = new AuthService($userRepository, $auditService);
 $userService = new UserService($userRepository, $magicLinkService, $mailer, $auditService, $config);
 $approvalService = new ApprovalService($userRepository, $conversationRepository, $messageRepository, $auditService);
-$adminAuthService = new AdminAuthService($auditService, $config);
-$chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider(), $auditService);
+$adminAuthService = new AdminAuthService($adminUserRepository, $auditService);
+$siteContentService = new SiteContentService($contentBlockRepository, $contentItemRepository);
+$chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider($assistantKnowledgeRepository), $auditService);
 
 return [
     'config' => $config,
     'pdo' => $pdo,
+    'repositories' => [
+        'admin_users' => $adminUserRepository,
+        'content_blocks' => $contentBlockRepository,
+        'content_items' => $contentItemRepository,
+        'assistant_knowledge' => $assistantKnowledgeRepository,
+    ],
     'services' => [
         'audit' => $auditService,
         'auth' => $authService,
@@ -65,6 +81,7 @@ return [
         'rate_limits' => $rateLimitService,
         'approval' => $approvalService,
         'admin_auth' => $adminAuthService,
+        'site_content' => $siteContentService,
         'chat' => $chatService,
     ],
 ];

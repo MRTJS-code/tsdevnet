@@ -1,4 +1,15 @@
-# Tony Smith Recruiter Portal (PHP 8 + MySQL 8)
+# Professional Profile and Recruiter Portal (PHP 8 + MySQL 8)
+
+## Phase 1B content/CMS update
+- Public homepage content is now intended to be DB-managed via `content_blocks` and `content_items`.
+- Rule-based assistant knowledge is now intended to be DB-managed via `assistant_knowledge`.
+- Admin auth is now DB-backed via `admin_users`.
+- Run the new migration and seed script after the Phase 1A setup:
+  ```sh
+  mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
+  php scripts/seed_phase1b.php
+  ```
+- The seed script creates generic placeholder homepage content, generic assistant knowledge, and the initial admin user. Real personal content should be entered through the admin UI, not committed to the repo.
 
 Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basic CRM tables, and a demo chat UI.
 
@@ -14,7 +25,7 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
    - DB credentials
    - Turnstile site/secret keys
    - Mail sender + SMTP settings
-   - Admin basic auth credentials
+   - Seed admin email/password for the initial admin bootstrap script
    - Set `session_secure=true` when HTTPS is enabled.
 2. Import the schema:
    ```sh
@@ -36,7 +47,7 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
 ## SMTP
 - Default points to `localhost:25` with no auth.
 - Set `smtp_username`/`smtp_password` and `smtp_secure` (`tls`/`ssl`) if required.
-- Sender defaults to `noreply@example.com` and name "Tony Smith".
+- Sender defaults to `noreply@example.com` and a generic site-admin sender name.
 
 ## Environments
 - Set `app_env=dev` to expose magic links on-screen after signup/login (for setup/testing only).
@@ -56,9 +67,9 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
 - Messages + conversations are stored; replies are canned in `ChatService::generateReply()`. Swap this out to call Azure OpenAI later (keep limits/logging intact).
 
 ## Admin
-- HTTP Basic Auth using `ADMIN_USER`/`ADMIN_PASS` from `config.php`.
-- `/admin/index.php` lists pending users with Approve/Reject/Block.
-- `/admin/user.php?id=...` shows details, notes, conversations/messages; lets you edit admin notes.
+- Admin auth is database-backed via `admin_users`.
+- `/admin/index.php` lists pending users and links to the content CMS areas.
+- `/admin/user.php?id=...` shows recruiter details, notes, conversations/messages.
 
 ## Adding Azure OpenAI later
 1. Implement `ChatService::generateReply()` to call Azure OpenAI (gpt-4o, etc.).
@@ -133,6 +144,6 @@ This repository now runs on a lightweight layered PHP structure aimed at traditi
 
 - In `APP_ENV=dev`, signup/login exposes the magic link onscreen for local testing.
 - In `APP_ENV=dev`, Turnstile is bypassed if no secret key is configured.
-- `ADMIN_PASSWORD_HASH` should be produced with PHP `password_hash()`.
+- Use `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD`, and `ADMIN_SEED_NAME` only for local bootstrap of the first admin user.
 
 ---

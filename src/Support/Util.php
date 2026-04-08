@@ -65,5 +65,18 @@ final class Util
             'limit' => (int) ($config['rate_limits']['chat_pending_per_day'] ?? 5),
         ];
     }
-}
 
+    public static function sectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'hero' => 'Hero',
+            'summary_cards' => 'Summary Cards',
+            'about' => 'About',
+            'achievements' => 'Achievements',
+            'technology_tags' => 'Technology Tags',
+            'operating_approach' => 'Operating Approach',
+            'contact_cta' => 'Contact CTA',
+            default => ucwords(str_replace('_', ' ', $sectionKey)),
+        };
+    }
+}

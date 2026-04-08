@@ -12,7 +12,7 @@ Env::load($root . '/.env.local');
 $defaults = [
     'app_env' => Env::get('APP_ENV', 'prod'),
     'app_url' => Env::get('APP_URL', 'http://localhost:8000'),
-    'app_name' => Env::get('APP_NAME', 'Tony Smith Recruiter Portal'),
+    'app_name' => Env::get('APP_NAME', 'Professional Profile and Recruiter Portal'),
     'session_secure' => Env::bool('SESSION_SECURE', false),
     'db' => [
         'host' => Env::get('DB_HOST', '127.0.0.1'),
@@ -28,7 +28,7 @@ $defaults = [
     ],
     'mail' => [
         'from_email' => Env::get('MAIL_FROM_EMAIL', 'noreply@example.com'),
-        'from_name' => Env::get('MAIL_FROM_NAME', 'Tony Smith'),
+        'from_name' => Env::get('MAIL_FROM_NAME', 'Site Admin'),
         'smtp_host' => Env::get('SMTP_HOST', 'localhost'),
         'smtp_port' => (int) Env::get('SMTP_PORT', '25'),
         'smtp_username' => Env::nullable('SMTP_USERNAME'),
@@ -36,8 +36,9 @@ $defaults = [
         'smtp_secure' => Env::nullable('SMTP_SECURE'),
     ],
     'admin' => [
-        'username' => Env::get('ADMIN_USERNAME', 'admin'),
-        'password_hash' => Env::get('ADMIN_PASSWORD_HASH', ''),
+        'seed_email' => Env::get('ADMIN_SEED_EMAIL', ''),
+        'seed_password' => Env::get('ADMIN_SEED_PASSWORD', ''),
+        'seed_name' => Env::get('ADMIN_SEED_NAME', 'Site Admin'),
     ],
     'magic_link_ttl' => (int) Env::get('MAGIC_LINK_TTL', '900'),
     'rate_limits' => [
@@ -56,4 +57,3 @@ if (is_file($localConfigFile)) {
 }
 
 return Config::merge($defaults, $localConfig);
-

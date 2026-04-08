@@ -69,13 +69,15 @@ final class Util
     public static function sectionLabel(string $sectionKey): string
     {
         return match ($sectionKey) {
-            'hero' => 'Hero',
-            'summary_cards' => 'Summary Cards',
-            'about' => 'About',
-            'achievements' => 'Achievements',
-            'technology_tags' => 'Technology Tags',
-            'operating_approach' => 'Operating Approach',
-            'contact_cta' => 'Contact CTA',
+            'homepage_intro' => 'Homepage Intro',
+            'chatbot_teaser' => 'Chatbot Teaser',
+            'hero' => 'Legacy Hero',
+            'summary_cards' => 'Legacy Summary Cards',
+            'about' => 'Legacy About',
+            'achievements' => 'Legacy Achievements',
+            'technology_tags' => 'Legacy Technology Tags',
+            'operating_approach' => 'Legacy Operating Approach',
+            'contact_cta' => 'Legacy Contact CTA',
             default => ucwords(str_replace('_', ' ', $sectionKey)),
         };
     }

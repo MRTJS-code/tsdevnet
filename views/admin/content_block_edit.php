@@ -4,8 +4,8 @@ use App\Support\Util;
 ?>
 <header class="app-header">
     <div>
-        <p class="eyebrow">CMS</p>
-        <h1><?= !empty($block['id']) ? 'Edit block' : 'New block' ?></h1>
+        <p class="eyebrow">Flexible CMS</p>
+        <h1><?= !empty($block['id']) ? 'Edit flexible block' : 'New flexible block' ?></h1>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/content-blocks.php">Back</a>
@@ -54,4 +54,3 @@ use App\Support\Util;
         </form>
     </section>
 </main>
-

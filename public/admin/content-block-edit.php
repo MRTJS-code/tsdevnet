@@ -16,7 +16,7 @@ $audit = $app['services']['audit'];
 $admin = $app['services']['admin_auth']->currentAdmin();
 $blockId = (int) ($_GET['id'] ?? 0);
 $errors = [];
-$sectionOptions = ['hero', 'summary_cards', 'about', 'achievements', 'technology_tags', 'operating_approach', 'contact_cta'];
+$sectionOptions = ['homepage_intro', 'chatbot_teaser', 'hero', 'summary_cards', 'about', 'achievements', 'technology_tags', 'operating_approach', 'contact_cta'];
 $block = $blockId > 0 ? $blocks->findById($blockId) : null;
 
 if (!$block) {

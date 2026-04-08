@@ -1,15 +1,18 @@
 # Professional Profile and Recruiter Portal (PHP 8 + MySQL 8)
 
-## Phase 1B content/CMS update
-- Public homepage content is now intended to be DB-managed via `content_blocks` and `content_items`.
+## Phase 1C homepage/content update
+- Public homepage content now uses typed homepage tables for the main profile structure.
+- `content_blocks` and `content_items` remain available only for lightweight flexible text sections.
 - Rule-based assistant knowledge is now intended to be DB-managed via `assistant_knowledge`.
 - Admin auth is now DB-backed via `admin_users`.
-- Run the new migration and seed script after the Phase 1A setup:
+- Run the new migrations and seed script after the Phase 1A setup:
   ```sh
   mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
+  mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
   php scripts/seed_phase1b.php
   ```
-- The seed script creates generic placeholder homepage content, generic assistant knowledge, and the initial admin user. Real personal content should be entered through the admin UI, not committed to the repo.
+- The seed script creates neutral typed homepage placeholder content, optional flexible blocks, generic assistant knowledge, and the initial admin user. Real personal content should be entered through the admin UI, not committed to the repo.
+- See `docs/homepage-content-model.md` for the homepage model rationale and table split.
 
 Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basic CRM tables, and a demo chat UI.
 
@@ -61,14 +64,14 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
 
 ## App area
 - `/app/index.php` shows tier based on status:
-  - pending → Demo Access (5 msgs/day)
-  - approved → Full Access (50 msgs/day)
+  - pending -> Demo Access (5 msgs/day)
+  - approved -> Full Access (50 msgs/day)
 - `/app/chat.php` enforces CSRF, origin, JSON content-type, and per-user daily limits.
 - Messages + conversations are stored; replies are canned in `ChatService::generateReply()`. Swap this out to call Azure OpenAI later (keep limits/logging intact).
 
 ## Admin
 - Admin auth is database-backed via `admin_users`.
-- `/admin/index.php` lists pending users and links to the content CMS areas.
+- `/admin/index.php` lists pending users and links to the homepage CMS areas.
 - `/admin/user.php?id=...` shows recruiter details, notes, conversations/messages.
 
 ## Adding Azure OpenAI later
@@ -97,7 +100,7 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
 - DB: `migrations/001_init.sql`
 
 ## Running locally
-- Serve `public/` via PHP’s built-in server for quick checks:
+- Serve `public/` via PHP's built-in server for quick checks:
   ```sh
   php -S localhost:8000 -t public
   ```

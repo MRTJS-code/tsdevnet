@@ -22,16 +22,16 @@ use App\Support\Util;
 
     <section class="section section--grid">
         <article class="card">
-            <p class="eyebrow">CMS</p>
-            <h2>Homepage blocks</h2>
-            <p>Manage curated homepage sections without storing personal copy in the repository.</p>
-            <a class="btn ghost" href="/admin/content-blocks.php">Manage blocks</a>
+            <p class="eyebrow">Homepage CMS</p>
+            <h2>Homepage content</h2>
+            <p>Manage the typed homepage model, CTA state, grouped technologies, portfolio, testimonials, and documents.</p>
+            <a class="btn ghost" href="/admin/homepage.php">Manage homepage</a>
         </article>
         <article class="card">
-            <p class="eyebrow">CMS</p>
-            <h2>Homepage items</h2>
-            <p>Edit repeatable cards, achievements, tags, and contact links.</p>
-            <a class="btn ghost" href="/admin/content-items.php">Manage items</a>
+            <p class="eyebrow">Flexible Copy</p>
+            <h2>Flexible blocks and items</h2>
+            <p>Use generic blocks only for optional text-led sections such as a homepage intro or future chatbot teaser copy.</p>
+            <a class="btn ghost" href="/admin/content-blocks.php">Manage flexible content</a>
         </article>
         <article class="card">
             <p class="eyebrow">Assistant</p>

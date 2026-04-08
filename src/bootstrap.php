@@ -8,8 +8,16 @@ use App\Repositories\AuditLogRepository;
 use App\Repositories\ConversationRepository;
 use App\Repositories\ContentBlockRepository;
 use App\Repositories\ContentItemRepository;
+use App\Repositories\HomepageCertificationRepository;
+use App\Repositories\HomepageDocumentRepository;
+use App\Repositories\HomepageExperienceRepository;
+use App\Repositories\HomepagePortfolioRepository;
+use App\Repositories\HomepageTechnologyEntryRepository;
+use App\Repositories\HomepageTechnologyGroupRepository;
+use App\Repositories\HomepageTestimonialRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\RateLimitRepository;
+use App\Repositories\SiteSettingRepository;
 use App\Repositories\TokenRepository;
 use App\Repositories\UserRepository;
 use App\Services\AdminAuthService;
@@ -17,6 +25,7 @@ use App\Services\ApprovalService;
 use App\Services\AuditService;
 use App\Services\AuthService;
 use App\Services\ChatService;
+use App\Services\HomepageUploadService;
 use App\Services\MagicLinkService;
 use App\Services\RateLimitService;
 use App\Services\SiteContentService;
@@ -52,6 +61,14 @@ $rateLimitRepository = new RateLimitRepository($pdo);
 $contentBlockRepository = new ContentBlockRepository($pdo);
 $contentItemRepository = new ContentItemRepository($pdo);
 $assistantKnowledgeRepository = new AssistantKnowledgeRepository($pdo);
+$siteSettingRepository = new SiteSettingRepository($pdo);
+$homepageExperienceRepository = new HomepageExperienceRepository($pdo);
+$homepageCertificationRepository = new HomepageCertificationRepository($pdo);
+$homepageTechnologyGroupRepository = new HomepageTechnologyGroupRepository($pdo);
+$homepageTechnologyEntryRepository = new HomepageTechnologyEntryRepository($pdo);
+$homepagePortfolioRepository = new HomepagePortfolioRepository($pdo);
+$homepageTestimonialRepository = new HomepageTestimonialRepository($pdo);
+$homepageDocumentRepository = new HomepageDocumentRepository($pdo);
 
 $auditService = new AuditService($auditLogRepository);
 $rateLimitService = new RateLimitService($rateLimitRepository);
@@ -61,7 +78,19 @@ $authService = new AuthService($userRepository, $auditService);
 $userService = new UserService($userRepository, $magicLinkService, $mailer, $auditService, $config);
 $approvalService = new ApprovalService($userRepository, $conversationRepository, $messageRepository, $auditService);
 $adminAuthService = new AdminAuthService($adminUserRepository, $auditService);
-$siteContentService = new SiteContentService($contentBlockRepository, $contentItemRepository);
+$homepageUploadService = new HomepageUploadService($root);
+$siteContentService = new SiteContentService(
+    $siteSettingRepository,
+    $homepageExperienceRepository,
+    $homepageCertificationRepository,
+    $homepageTechnologyGroupRepository,
+    $homepageTechnologyEntryRepository,
+    $homepagePortfolioRepository,
+    $homepageTestimonialRepository,
+    $homepageDocumentRepository,
+    $contentBlockRepository,
+    $contentItemRepository
+);
 $chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider($assistantKnowledgeRepository), $auditService);
 
 return [
@@ -72,6 +101,14 @@ return [
         'content_blocks' => $contentBlockRepository,
         'content_items' => $contentItemRepository,
         'assistant_knowledge' => $assistantKnowledgeRepository,
+        'site_settings' => $siteSettingRepository,
+        'homepage_experience' => $homepageExperienceRepository,
+        'homepage_certifications' => $homepageCertificationRepository,
+        'homepage_technology_groups' => $homepageTechnologyGroupRepository,
+        'homepage_technology_entries' => $homepageTechnologyEntryRepository,
+        'homepage_portfolio' => $homepagePortfolioRepository,
+        'homepage_testimonials' => $homepageTestimonialRepository,
+        'homepage_documents' => $homepageDocumentRepository,
     ],
     'services' => [
         'audit' => $auditService,
@@ -82,6 +119,7 @@ return [
         'approval' => $approvalService,
         'admin_auth' => $adminAuthService,
         'site_content' => $siteContentService,
+        'homepage_uploads' => $homepageUploadService,
         'chat' => $chatService,
     ],
 ];

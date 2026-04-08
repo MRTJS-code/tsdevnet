@@ -3,8 +3,9 @@ use App\Support\Util;
 ?>
 <header class="app-header">
     <div>
-        <p class="eyebrow">CMS</p>
-        <h1>Homepage blocks</h1>
+        <p class="eyebrow">Flexible CMS</p>
+        <h1>Flexible content blocks</h1>
+        <p class="help-text">These blocks are now reserved for optional text-led sections rather than the main homepage structure.</p>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/index.php">Dashboard</a>
@@ -42,4 +43,3 @@ use App\Support\Util;
         </div>
     </section>
 </main>
-

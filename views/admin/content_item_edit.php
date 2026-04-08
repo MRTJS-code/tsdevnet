@@ -4,8 +4,8 @@ use App\Support\Util;
 ?>
 <header class="app-header">
     <div>
-        <p class="eyebrow">CMS</p>
-        <h1><?= !empty($item['id']) ? 'Edit item' : 'New item' ?></h1>
+        <p class="eyebrow">Flexible CMS</p>
+        <h1><?= !empty($item['id']) ? 'Edit flexible item' : 'New flexible item' ?></h1>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/content-items.php<?= !empty($item['block_id']) ? '?block_id=' . (int) $item['block_id'] : '' ?>">Back</a>

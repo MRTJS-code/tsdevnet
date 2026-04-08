@@ -3,8 +3,8 @@ use App\Support\Util;
 ?>
 <header class="app-header">
     <div>
-        <p class="eyebrow">CMS</p>
-        <h1>Homepage items</h1>
+        <p class="eyebrow">Flexible CMS</p>
+        <h1>Flexible content items</h1>
         <?php if (!empty($selectedBlock)): ?>
             <p class="help-text">Filtered to <?= Util::e(Util::sectionLabel($selectedBlock['section_key'])) ?></p>
         <?php endif; ?>

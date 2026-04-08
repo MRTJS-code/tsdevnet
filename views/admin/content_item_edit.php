@@ -59,7 +59,12 @@ use App\Support\Util;
                 <input type="checkbox" name="is_active" value="1" <?= !empty($item['is_active']) ? 'checked' : '' ?>>
                 <span>Active</span>
             </label>
-            <button class="btn primary" type="submit">Save item</button>
+            <div class="actions">
+                <button class="btn primary" type="submit">Save item</button>
+                <?php if (!empty($item['id'])): ?>
+                    <button class="btn danger" type="submit" name="form_action" value="delete" onclick="return confirm('Are you sure you want to delete this item?');">Delete item</button>
+                <?php endif; ?>
+            </div>
         </form>
         <?php endif; ?>
     </section>

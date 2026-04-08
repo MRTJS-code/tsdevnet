@@ -111,4 +111,10 @@ final class ContentItemRepository
             $id,
         ]);
     }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM content_items WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

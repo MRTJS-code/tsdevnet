@@ -46,7 +46,12 @@ use App\Support\Util;
                 <input type="checkbox" name="is_active" value="1" <?= !empty($entry['is_active']) ? 'checked' : '' ?>>
                 <span>Active</span>
             </label>
-            <button class="btn primary" type="submit">Save entry</button>
+            <div class="actions">
+                <button class="btn primary" type="submit">Save entry</button>
+                <?php if (!empty($entry['id'])): ?>
+                    <button class="btn danger" type="submit" name="form_action" value="delete" onclick="return confirm('Are you sure you want to delete this timeline entry?');">Delete entry</button>
+                <?php endif; ?>
+            </div>
         </form>
     </section>
 </main>

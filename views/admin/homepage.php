@@ -55,8 +55,8 @@
         </article>
         <article class="card">
             <p class="eyebrow">Flexible copy</p>
-            <h2>Optional blocks</h2>
-            <p>Keep lightweight generic sections for optional intro or chatbot teaser text.</p>
+            <h2>Wrapper sections</h2>
+            <p>Manage the top, middle, and bottom flexible wrappers that introduce Core Strengths, Grouped Capability, and the chatbot teaser.</p>
             <a class="btn ghost" href="/admin/content-blocks.php">Manage flexible blocks</a>
         </article>
     </section>

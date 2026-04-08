@@ -70,6 +70,7 @@ final class Util
     {
         return match ($sectionKey) {
             'homepage_intro' => 'Homepage Intro',
+            'grouped_capability_intro' => 'Grouped Capability Intro',
             'chatbot_teaser' => 'Chatbot Teaser',
             'hero' => 'Legacy Hero',
             'summary_cards' => 'Legacy Summary Cards',

@@ -185,20 +185,32 @@ try {
 
     $blocks->upsertBySectionKey([
         'section_key' => 'homepage_intro',
-        'title' => 'Placeholder homepage intro',
-        'subtitle' => 'Optional flexible content',
-        'body_text' => 'Use this generic block only for lightweight introductory copy that does not justify a dedicated typed table.',
+        'homepage_position' => 'top',
+        'title' => 'Core strengths',
+        'subtitle' => 'Flexible section wrapper',
+        'body_text' => 'Use this wrapper to position the strongest capabilities between the hero and the timeline while keeping the underlying strengths in typed technology records.',
         'meta_json' => null,
         'sort_order' => 10,
         'is_active' => 1,
     ]);
     $blocks->upsertBySectionKey([
-        'section_key' => 'chatbot_teaser',
-        'title' => 'Chatbot teaser placeholder',
-        'subtitle' => 'Optional flexible content',
-        'body_text' => 'A future gated assistant or teaser can be introduced without redesigning the hero or footer.',
+        'section_key' => 'grouped_capability_intro',
+        'homepage_position' => 'middle',
+        'title' => 'Grouped capability',
+        'subtitle' => 'Flexible section wrapper',
+        'body_text' => 'This middle wrapper introduces the three typed capability cards: certifications, supporting tools and platforms, and software exposure.',
         'meta_json' => null,
         'sort_order' => 20,
+        'is_active' => 1,
+    ]);
+    $blocks->upsertBySectionKey([
+        'section_key' => 'chatbot_teaser',
+        'homepage_position' => 'bottom',
+        'title' => 'Chatbot teaser placeholder',
+        'subtitle' => 'Optional flexible content',
+        'body_text' => 'A future gated assistant or teaser can be introduced above the footer without redesigning the page structure.',
+        'meta_json' => null,
+        'sort_order' => 30,
         'is_active' => 1,
     ]);
 

@@ -90,6 +90,12 @@ final class HomepageDocumentRepository
         return $this->create($data);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM documents WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     private function mapRow(array $row): array
     {
         $legacyKey = $this->legacyKey($row['document_key']);

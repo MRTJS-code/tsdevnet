@@ -38,7 +38,10 @@ final class SiteContentService
         $settings = $this->settings->getAllIndexed();
         $singleton = $this->settings->getSingleton() ?? [];
         $documents = $this->documentsByKey();
-        $flexBlocks = $this->flexibleBlocks();
+        $flexBlocks = $this->flexibleBlocks($defaults['flexible_sections']);
+        $technologyGroups = $this->technologyGroupsByKey($defaults['technology_groups']);
+        $certifications = $this->normalizeCertifications($this->certifications->listAll(true), $defaults['certifications']);
+        $portfolioItems = $this->normalizePortfolio($this->portfolio->listAll(true), $defaults['portfolio_items']);
 
         return [
             'site_settings' => [
@@ -77,13 +80,15 @@ final class SiteContentService
                 'chatbot_teaser' => [
                     'enabled' => $this->boolSetting($settings, 'chatbot_teaser_enabled', $defaults['hero']['chatbot_teaser']['enabled']),
                     'label' => $this->settingValue($settings, 'chatbot_teaser_label', $defaults['hero']['chatbot_teaser']['label']),
-                    'body_text' => $flexBlocks['chatbot_teaser']['body_text'] ?? $defaults['hero']['chatbot_teaser']['body_text'],
+                    'body_text' => $flexBlocks['bottom']['body_text'] ?? $defaults['hero']['chatbot_teaser']['body_text'],
                 ],
             ],
             'experience_timeline' => $this->normalizeExperience($this->experience->listAll(true), $defaults['experience_timeline']),
-            'certifications' => $this->normalizeCertifications($this->certifications->listAll(true), $defaults['certifications']),
-            'technology_groups' => $this->technologyGroups($defaults['technology_groups']),
-            'portfolio_items' => $this->normalizePortfolio($this->portfolio->listAll(true), $defaults['portfolio_items']),
+            'certifications' => $certifications,
+            'technology_groups' => array_values($technologyGroups),
+            'core_strengths' => $technologyGroups['core_strengths'] ?? $defaults['core_strengths'],
+            'grouped_capability' => $this->groupedCapability($technologyGroups, $certifications, $defaults['grouped_capability']),
+            'portfolio_items' => $portfolioItems,
             'testimonials' => $this->normalizeTestimonials($this->testimonials->listAll(true), $defaults['testimonials']),
             'footer_contact' => [
                 'heading' => $this->settingValue($settings, 'footer_heading', $defaults['footer_contact']['heading']),
@@ -102,6 +107,7 @@ final class SiteContentService
         return [
             'id' => (int) $block['id'],
             'section_key' => $block['section_key'],
+            'homepage_position' => $block['homepage_position'] ?? 'top',
             'title' => $block['title'] ?? '',
             'subtitle' => $block['subtitle'] ?? '',
             'body_text' => $block['body_text'] ?? '',
@@ -133,37 +139,38 @@ final class SiteContentService
         return $documents;
     }
 
-    private function flexibleBlocks(): array
+    private function flexibleBlocks(array $defaults): array
     {
-        $blocks = [];
+        $allowedKeys = ['homepage_intro', 'grouped_capability_intro', 'chatbot_teaser'];
+        $blocksByKey = [];
         foreach ($this->blocks->listActive() as $block) {
-            if (!in_array($block['section_key'], ['homepage_intro', 'chatbot_teaser'], true)) {
+            if (!in_array($block['section_key'], $allowedKeys, true)) {
                 continue;
             }
 
-            $blocks[$block['section_key']] = $this->normalizeBlock($block);
-        }
-
-        if ($blocks === []) {
-            return [];
+            $blocksByKey[$block['section_key']] = $this->normalizeBlock($block);
         }
 
         $itemsByBlockId = $this->items->listGroupedByBlockIds(array_map(
             static fn (array $block): int => (int) $block['id'],
-            array_values($blocks)
+            array_values($blocksByKey)
         ));
 
-        foreach ($blocks as $key => $block) {
-            $blocks[$key]['items'] = array_map(
+        foreach ($blocksByKey as $key => $block) {
+            $blocksByKey[$key]['items'] = array_map(
                 fn (array $item): array => $this->normalizeItem($item),
                 $itemsByBlockId[(int) $block['id']] ?? []
             );
         }
 
-        return $blocks;
+        return [
+            'top' => $this->normalizeFlexibleSection($blocksByKey['homepage_intro'] ?? null, 'homepage_intro', 'top', $defaults['top']),
+            'middle' => $this->normalizeFlexibleSection($blocksByKey['grouped_capability_intro'] ?? null, 'grouped_capability_intro', 'middle', $defaults['middle']),
+            'bottom' => $this->normalizeFlexibleSection($blocksByKey['chatbot_teaser'] ?? null, 'chatbot_teaser', 'bottom', $defaults['bottom']),
+        ];
     }
 
-    private function technologyGroups(array $defaults): array
+    private function technologyGroupsByKey(array $defaults): array
     {
         $groups = $this->technologyGroups->listAll(true);
         if ($groups === []) {
@@ -175,7 +182,7 @@ final class SiteContentService
         $normalized = [];
 
         foreach ($groups as $group) {
-            $normalized[] = [
+            $normalized[$group['group_key']] = [
                 'id' => (int) $group['id'],
                 'group_key' => $group['group_key'],
                 'title' => $group['title'],
@@ -249,10 +256,76 @@ final class SiteContentService
                 'title' => $row['title'],
                 'summary' => $row['summary'] ?? '',
                 'outcome' => $row['outcome'] ?? '',
+                'category' => $row['category'] ?? '',
+                'problem_text' => $row['problem_text'] ?? '',
+                'approach_text' => $row['approach_text'] ?? '',
+                'tech_text' => $row['tech_text'] ?? '',
+                'repo_url' => $row['repo_url'] ?? '',
+                'demo_url' => $row['demo_url'] ?? '',
                 'link_url' => $row['link_url'] ?? '',
                 'link_label' => $row['link_label'] ?? '',
             ];
         }, $rows);
+    }
+
+    private function groupedCapability(array $technologyGroups, array $certifications, array $defaults): array
+    {
+        $supportingTools = $technologyGroups['supporting_tools'] ?? $defaults['supporting_tools'];
+        $softwareExposure = $technologyGroups['exposure_familiarity'] ?? $defaults['software_exposure'];
+
+        return [
+            'cards' => [
+                [
+                    'key' => 'certifications',
+                    'title' => 'Certifications',
+                    'intro_text' => 'Professional qualifications and current credentials.',
+                    'preview_items' => array_map(
+                        static fn (array $entry): string => trim(implode(' | ', array_filter([$entry['certification_name'], $entry['issuer'] ?? '', $entry['issued_label'] ?? '']))),
+                        array_slice($certifications, 0, 4)
+                    ),
+                    'detail_items' => $certifications,
+                ],
+                [
+                    'key' => 'supporting_tools',
+                    'title' => $supportingTools['title'],
+                    'intro_text' => $supportingTools['intro_text'] ?? '',
+                    'preview_items' => array_map(
+                        static fn (array $item): string => $item['label'],
+                        array_slice($supportingTools['items'] ?? [], 0, 4)
+                    ),
+                    'detail_items' => $supportingTools['items'] ?? [],
+                ],
+                [
+                    'key' => 'software_exposure',
+                    'title' => $softwareExposure['title'],
+                    'intro_text' => $softwareExposure['intro_text'] ?? '',
+                    'preview_items' => array_map(
+                        static fn (array $item): string => $item['label'],
+                        array_slice($softwareExposure['items'] ?? [], 0, 4)
+                    ),
+                    'detail_items' => $softwareExposure['items'] ?? [],
+                ],
+            ],
+        ];
+    }
+
+    private function normalizeFlexibleSection(?array $block, string $sectionKey, string $position, array $default): array
+    {
+        if ($block === null) {
+            return [
+                'id' => 0,
+                'section_key' => $sectionKey,
+                'homepage_position' => $position,
+                'title' => $default['title'],
+                'subtitle' => $default['subtitle'],
+                'body_text' => $default['body_text'],
+                'meta' => [],
+                'items' => [],
+                'is_active' => 1,
+            ];
+        }
+
+        return $block + ['homepage_position' => $position];
     }
 
     private function normalizeTestimonials(array $rows, array $defaults): array
@@ -379,6 +452,23 @@ final class SiteContentService
                 'chatbot_teaser_enabled' => true,
                 'chatbot_teaser_label' => 'Assistant pathway ready for the next phase',
             ],
+            'flexible_sections' => [
+                'top' => [
+                    'title' => 'Core strengths',
+                    'subtitle' => 'Flexible section wrapper',
+                    'body_text' => 'Use admin to frame the strongest capabilities above the timeline while the actual strengths remain in typed records.',
+                ],
+                'middle' => [
+                    'title' => 'Grouped capability',
+                    'subtitle' => 'Flexible section wrapper',
+                    'body_text' => 'Use admin to introduce the capability rail for certifications, supporting tools, and software exposure.',
+                ],
+                'bottom' => [
+                    'title' => 'Chatbot teaser placeholder',
+                    'subtitle' => 'Optional flexible content',
+                    'body_text' => 'A future gated assistant or teaser can be introduced above the footer without redesigning the homepage.',
+                ],
+            ],
             'hero' => [
                 'eyebrow' => 'Executive Profile',
                 'title' => 'A reusable executive-profile homepage with a typed content model.',
@@ -402,7 +492,7 @@ final class SiteContentService
                 'chatbot_teaser' => [
                     'enabled' => true,
                     'label' => 'Assistant pathway ready for the next phase',
-                    'body_text' => 'A future gated assistant or teaser can be introduced without redesigning the hero or footer.',
+                    'body_text' => 'A future gated assistant or teaser can be introduced above the footer without redesigning the homepage.',
                 ],
             ],
             'experience_timeline' => [[
@@ -419,7 +509,7 @@ final class SiteContentService
                 'credential_url' => '',
             ]],
             'technology_groups' => [
-                [
+                'core_strengths' => [
                     'group_key' => 'core_strengths',
                     'title' => 'Core strengths',
                     'intro_text' => 'High-confidence capabilities that should be foregrounded on the homepage.',
@@ -428,17 +518,42 @@ final class SiteContentService
                         ['label' => 'Delivery governance', 'detail_text' => 'Replace through admin'],
                     ],
                 ],
-                [
+                'supporting_tools' => [
                     'group_key' => 'supporting_tools',
-                    'title' => 'Supporting tools and platforms',
+                    'title' => 'Supporting tools / platforms',
                     'intro_text' => 'Platforms and tools used to support outcomes.',
                     'items' => [
                         ['label' => 'Cloud platforms', 'detail_text' => 'Replace through admin'],
                     ],
                 ],
-                [
+                'exposure_familiarity' => [
                     'group_key' => 'exposure_familiarity',
-                    'title' => 'Exposure and familiarity',
+                    'title' => 'Software exposure',
+                    'intro_text' => 'Adjacent technologies that add context without overstating depth.',
+                    'items' => [
+                        ['label' => 'Emerging tooling', 'detail_text' => 'Replace through admin'],
+                    ],
+                ],
+            ],
+            'core_strengths' => [
+                'group_key' => 'core_strengths',
+                'title' => 'Core strengths',
+                'intro_text' => 'High-confidence capabilities that should be foregrounded on the homepage.',
+                'items' => [
+                    ['label' => 'Architecture leadership', 'detail_text' => 'Replace through admin'],
+                    ['label' => 'Delivery governance', 'detail_text' => 'Replace through admin'],
+                ],
+            ],
+            'grouped_capability' => [
+                'supporting_tools' => [
+                    'title' => 'Supporting tools / platforms',
+                    'intro_text' => 'Platforms and tools used to support outcomes.',
+                    'items' => [
+                        ['label' => 'Cloud platforms', 'detail_text' => 'Replace through admin'],
+                    ],
+                ],
+                'software_exposure' => [
+                    'title' => 'Software exposure',
                     'intro_text' => 'Adjacent technologies that add context without overstating depth.',
                     'items' => [
                         ['label' => 'Emerging tooling', 'detail_text' => 'Replace through admin'],

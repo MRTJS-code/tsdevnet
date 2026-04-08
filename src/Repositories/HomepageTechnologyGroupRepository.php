@@ -86,6 +86,12 @@ final class HomepageTechnologyGroupRepository
         return $this->create($data);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM profile_technology_groups WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     private function mapRow(array $row): array
     {
         return $row + [

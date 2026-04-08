@@ -35,6 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Testimonial not found.';
+        } else {
+            $repo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_testimonial_deleted', ['testimonial_id' => $entryId], Util::clientIp());
+            header('Location: /admin/homepage-testimonials.php');
+            exit;
+        }
+    }
+
     $data = [
         'quote_text' => trim((string) ($_POST['quote_text'] ?? '')),
         'person_name' => trim((string) ($_POST['person_name'] ?? '')),

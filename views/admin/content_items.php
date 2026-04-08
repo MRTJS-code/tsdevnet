@@ -1,4 +1,5 @@
 <?php
+use App\Support\Security;
 use App\Support\Util;
 ?>
 <header class="app-header">
@@ -37,7 +38,17 @@ use App\Support\Util;
                         <td><?= Util::e($item['title']) ?></td>
                         <td><?= (int) $item['sort_order'] ?></td>
                         <td><?= !empty($item['is_active']) ? 'Yes' : 'No' ?></td>
-                        <td><a class="btn small ghost" href="/admin/content-item-edit.php?id=<?= (int) $item['id'] ?>">Edit</a></td>
+                        <td>
+                            <div class="inline-form">
+                                <a class="btn small ghost" href="/admin/content-item-edit.php?id=<?= (int) $item['id'] ?>">Edit</a>
+                                <form method="post" action="/admin/content-items.php<?= !empty($selectedBlock) ? '?block_id=' . (int) $selectedBlock['id'] : '' ?>" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                                    <input type="hidden" name="csrf_token" value="<?= Util::e(Security::csrfToken()) ?>">
+                                    <input type="hidden" name="item_id" value="<?= (int) $item['id'] ?>">
+                                    <input type="hidden" name="redirect_block_id" value="<?= (int) ($selectedBlock['id'] ?? 0) ?>">
+                                    <button class="btn small danger" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

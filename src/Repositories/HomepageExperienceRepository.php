@@ -72,6 +72,12 @@ final class HomepageExperienceRepository
         ]);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM profile_experience WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     private function mapRow(array $row): array
     {
         return $row + [

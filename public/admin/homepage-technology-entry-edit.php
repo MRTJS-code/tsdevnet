@@ -36,6 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Technology entry not found.';
+        } else {
+            $entryRepo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_technology_entry_deleted', ['technology_entry_id' => $entryId], Util::clientIp());
+            header('Location: /admin/homepage-technologies.php');
+            exit;
+        }
+    }
+
     $data = [
         'group_id' => (int) ($_POST['group_id'] ?? 0),
         'label' => trim((string) ($_POST['label'] ?? '')),

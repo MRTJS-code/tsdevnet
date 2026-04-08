@@ -36,6 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Portfolio item not found.';
+        } else {
+            $repo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_portfolio_deleted', ['portfolio_id' => $entryId], Util::clientIp());
+            header('Location: /admin/homepage-portfolio.php');
+            exit;
+        }
+    }
+
     $data = [
         'title' => trim((string) ($_POST['title'] ?? '')),
         'summary' => trim((string) ($_POST['summary'] ?? '')),

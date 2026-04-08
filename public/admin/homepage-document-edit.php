@@ -42,6 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Document not found.';
+        } else {
+            $repo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_document_deleted', ['document_id' => $entryId, 'document_key' => $entry['document_key']], Util::clientIp());
+            header('Location: /admin/homepage-documents.php');
+            exit;
+        }
+    }
+
     $data = [
         'document_key' => trim((string) ($_POST['document_key'] ?? '')),
         'document_type' => trim((string) ($_POST['document_type'] ?? '')),

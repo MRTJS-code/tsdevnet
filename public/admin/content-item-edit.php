@@ -42,6 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($itemId <= 0 || !$item) {
+            $errors[] = 'Item not found.';
+        } else {
+            $deletedBlockId = (int) $item['block_id'];
+            $itemRepo->delete($itemId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'content_item_deleted', ['item_id' => $itemId, 'block_id' => $deletedBlockId], Util::clientIp());
+            header('Location: /admin/content-items.php?block_id=' . $deletedBlockId);
+            exit;
+        }
+    }
+
     $metaJson = Json::encodeArray($_POST['meta_json'] ?? null);
     if (trim((string) ($_POST['meta_json'] ?? '')) !== '' && $metaJson === null) {
         $errors[] = 'Metadata JSON must be a valid object or array.';
@@ -85,4 +97,3 @@ View::render('admin/content_item_edit', [
     'blocks' => $blocks,
     'errors' => $errors,
 ]);
-

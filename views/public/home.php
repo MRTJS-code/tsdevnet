@@ -4,12 +4,15 @@ use App\Support\Util;
 $siteSettings = $homepage['site_settings'];
 $hero = $homepage['hero'];
 $experience = $homepage['experience_timeline'];
-$certifications = $homepage['certifications'];
-$technologyGroups = $homepage['technology_groups'];
+$coreStrengths = $homepage['core_strengths'];
+$groupedCapability = $homepage['grouped_capability'];
 $portfolioItems = $homepage['portfolio_items'];
 $testimonials = $homepage['testimonials'];
 $footer = $homepage['footer_contact'];
-$homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
+$flexibleSections = $siteSettings['flexible_sections'] ?? [];
+$topSection = $flexibleSections['top'] ?? null;
+$middleSection = $flexibleSections['middle'] ?? null;
+$bottomSection = $flexibleSections['bottom'] ?? null;
 ?>
 <main class="site-shell site-shell--homepage">
     <section class="hero hero--profile">
@@ -68,87 +71,74 @@ $homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
         </div>
     </section>
 
-    <?php if (!empty($homepageIntro)): ?>
-        <section class="section">
-            <article class="card intro-card">
-                <?php if (!empty($homepageIntro['subtitle'])): ?>
-                    <p class="eyebrow"><?= Util::e($homepageIntro['subtitle']) ?></p>
+    <section class="section">
+        <article class="section-wrapper section-wrapper--top">
+            <?php if (!empty($topSection['subtitle'])): ?>
+                <p class="eyebrow"><?= Util::e($topSection['subtitle']) ?></p>
+            <?php endif; ?>
+            <div class="section-heading">
+                <h2><?= Util::e($topSection['title'] ?? 'Core strengths') ?></h2>
+                <?php if (!empty($topSection['body_text'])): ?>
+                    <p class="lede"><?= Util::e($topSection['body_text']) ?></p>
                 <?php endif; ?>
-                <h2><?= Util::e($homepageIntro['title']) ?></h2>
-                <p class="lede"><?= Util::e($homepageIntro['body_text']) ?></p>
-            </article>
-        </section>
-    <?php endif; ?>
-
-    <section class="section section--split-home">
-        <div class="section-panel">
-            <div class="section-heading">
-                <p class="eyebrow">Experience</p>
-                <h2>Condensed timeline</h2>
             </div>
-            <div class="timeline">
-                <?php foreach ($experience as $entry): ?>
-                    <article class="timeline__entry">
-                        <p class="timeline__period"><?= Util::e($entry['period_label']) ?></p>
-                        <h3><?= Util::e($entry['role_title']) ?></h3>
-                        <p class="timeline__org"><?= Util::e($entry['organisation']) ?></p>
-                        <?php if (!empty($entry['summary'])): ?>
-                            <p><?= Util::e($entry['summary']) ?></p>
-                        <?php endif; ?>
-                        <?php if (!empty($entry['highlights'])): ?>
-                            <ul class="feature-list">
-                                <?php foreach ($entry['highlights'] as $highlight): ?>
-                                    <li><?= Util::e($highlight) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
-                        <?php if (!empty($entry['highlight_text'])): ?>
-                            <p class="timeline__highlight"><?= Util::e($entry['highlight_text']) ?></p>
-                        <?php endif; ?>
-                    </article>
+            <div class="tag-list tag-list--strengths">
+                <?php foreach (($coreStrengths['items'] ?? []) as $item): ?>
+                    <span title="<?= Util::e($item['detail_text'] ?? '') ?>"><?= Util::e($item['label']) ?></span>
                 <?php endforeach; ?>
             </div>
-        </div>
-
-        <div class="section-panel">
-            <div class="section-heading">
-                <p class="eyebrow">Credentials</p>
-                <h2>Certifications</h2>
-            </div>
-            <div class="stack-list">
-                <?php foreach ($certifications as $entry): ?>
-                    <article class="stack-list__item">
-                        <h3><?= Util::e($entry['certification_name']) ?></h3>
-                        <p><?= Util::e(implode(' | ', array_filter([$entry['issuer'] ?? '', $entry['issued_label'] ?? '']))) ?></p>
-                        <?php if (!empty($entry['credential_url'])): ?>
-                            <a href="<?= Util::e($entry['credential_url']) ?>" target="_blank" rel="noreferrer">View credential</a>
-                        <?php endif; ?>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        </div>
+        </article>
     </section>
 
     <section class="section">
         <div class="section-heading">
-            <p class="eyebrow">Technology</p>
-            <h2>Grouped capability view</h2>
+            <p class="eyebrow">Experience</p>
+            <h2>Condensed timeline</h2>
         </div>
-        <div class="technology-groups">
-            <?php foreach ($technologyGroups as $group): ?>
-                <article class="card technology-group">
-                    <h3><?= Util::e($group['title']) ?></h3>
-                    <?php if (!empty($group['intro_text'])): ?>
-                        <p><?= Util::e($group['intro_text']) ?></p>
+        <div class="card-rail">
+            <?php foreach ($experience as $entry): ?>
+                <button class="rail-card rail-card--interactive" type="button" data-dialog-target="experience-<?= (int) $entry['id'] ?>">
+                    <p class="rail-card__eyebrow"><?= Util::e($entry['period_label']) ?></p>
+                    <h3><?= Util::e($entry['role_title']) ?></h3>
+                    <p class="rail-card__meta"><?= Util::e($entry['organisation']) ?></p>
+                    <?php if (!empty($entry['summary'])): ?>
+                        <p><?= Util::e($entry['summary']) ?></p>
                     <?php endif; ?>
-                    <div class="tag-list">
-                        <?php foreach ($group['items'] as $item): ?>
-                            <span title="<?= Util::e($item['detail_text'] ?? '') ?>"><?= Util::e($item['label']) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </article>
+                </button>
             <?php endforeach; ?>
         </div>
+    </section>
+
+    <section class="section">
+        <article class="section-wrapper section-wrapper--middle">
+            <?php if (!empty($middleSection['subtitle'])): ?>
+                <p class="eyebrow"><?= Util::e($middleSection['subtitle']) ?></p>
+            <?php endif; ?>
+            <div class="section-heading">
+                <h2><?= Util::e($middleSection['title'] ?? 'Grouped capability') ?></h2>
+                <?php if (!empty($middleSection['body_text'])): ?>
+                    <p class="lede"><?= Util::e($middleSection['body_text']) ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="card-rail">
+                <?php foreach (($groupedCapability['cards'] ?? []) as $card): ?>
+                    <button class="rail-card rail-card--interactive" type="button" data-dialog-target="capability-<?= Util::e($card['key']) ?>">
+                        <p class="rail-card__eyebrow">Capability</p>
+                        <h3><?= Util::e($card['title']) ?></h3>
+                        <?php if (!empty($card['intro_text'])): ?>
+                            <p><?= Util::e($card['intro_text']) ?></p>
+                        <?php endif; ?>
+                        <?php if (!empty($card['preview_items'])): ?>
+                            <ul class="feature-list feature-list--compact">
+                                <?php foreach ($card['preview_items'] as $preview): ?>
+                                    <li><?= Util::e($preview) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </button>
+                <?php endforeach; ?>
+            </div>
+        </article>
     </section>
 
     <section class="section">
@@ -156,20 +146,20 @@ $homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
             <p class="eyebrow">Portfolio</p>
             <h2>Featured work</h2>
         </div>
-        <div class="content-grid">
+        <div class="card-rail">
             <?php foreach ($portfolioItems as $item): ?>
-                <article class="card portfolio-card">
+                <button class="rail-card rail-card--interactive" type="button" data-dialog-target="portfolio-<?= (int) $item['id'] ?>">
+                    <?php if (!empty($item['category'])): ?>
+                        <p class="rail-card__eyebrow"><?= Util::e($item['category']) ?></p>
+                    <?php endif; ?>
                     <h3><?= Util::e($item['title']) ?></h3>
                     <?php if (!empty($item['summary'])): ?>
                         <p><?= Util::e($item['summary']) ?></p>
                     <?php endif; ?>
                     <?php if (!empty($item['outcome'])): ?>
-                        <p class="portfolio-card__outcome"><?= Util::e($item['outcome']) ?></p>
+                        <p class="rail-card__accent"><?= Util::e($item['outcome']) ?></p>
                     <?php endif; ?>
-                    <?php if (!empty($item['link_url']) && !empty($item['link_label'])): ?>
-                        <a href="<?= Util::e($item['link_url']) ?>" target="_blank" rel="noreferrer"><?= Util::e($item['link_label']) ?></a>
-                    <?php endif; ?>
-                </article>
+                </button>
             <?php endforeach; ?>
         </div>
     </section>
@@ -190,16 +180,21 @@ $homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
         </div>
     </section>
 
-    <?php if (!empty($hero['chatbot_teaser']['enabled']) && !empty($hero['chatbot_teaser']['body_text'])): ?>
+    <?php if (!empty($hero['chatbot_teaser']['enabled']) && !empty($bottomSection['body_text'])): ?>
         <section class="section">
-            <article class="card teaser-card">
-                <p class="eyebrow"><?= Util::e($hero['chatbot_teaser']['label']) ?></p>
-                <p class="lede"><?= Util::e($hero['chatbot_teaser']['body_text']) ?></p>
+            <article class="section-wrapper section-wrapper--bottom">
+                <?php if (!empty($bottomSection['subtitle'])): ?>
+                    <p class="eyebrow"><?= Util::e($bottomSection['subtitle']) ?></p>
+                <?php endif; ?>
+                <h2><?= Util::e($bottomSection['title'] ?? $hero['chatbot_teaser']['label']) ?></h2>
+                <p class="lede"><?= Util::e($bottomSection['body_text']) ?></p>
             </article>
         </section>
     <?php endif; ?>
+</main>
 
-    <section class="section section--cta footer-contact">
+<footer class="site-footer">
+    <div class="site-footer__inner">
         <div>
             <p class="eyebrow">Contact</p>
             <h2><?= Util::e($footer['heading']) ?></h2>
@@ -226,5 +221,127 @@ $homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
                 <?php endif; ?>
             <?php endforeach; ?>
         </div>
-    </section>
-</main>
+    </div>
+</footer>
+
+<?php foreach ($experience as $entry): ?>
+    <dialog class="modal-card" id="experience-<?= (int) $entry['id'] ?>">
+        <div class="modal-card__header">
+            <div>
+                <p class="eyebrow"><?= Util::e($entry['period_label']) ?></p>
+                <h2><?= Util::e($entry['role_title']) ?></h2>
+                <p class="rail-card__meta"><?= Util::e($entry['organisation']) ?></p>
+            </div>
+            <button class="btn ghost modal-card__close" type="button" data-dialog-close>Close</button>
+        </div>
+        <?php if (!empty($entry['summary'])): ?>
+            <p class="lede"><?= Util::e($entry['summary']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($entry['highlights'])): ?>
+            <ul class="feature-list">
+                <?php foreach ($entry['highlights'] as $highlight): ?>
+                    <li><?= Util::e($highlight) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </dialog>
+<?php endforeach; ?>
+
+<?php foreach (($groupedCapability['cards'] ?? []) as $card): ?>
+    <dialog class="modal-card" id="capability-<?= Util::e($card['key']) ?>">
+        <div class="modal-card__header">
+            <div>
+                <p class="eyebrow">Capability</p>
+                <h2><?= Util::e($card['title']) ?></h2>
+            </div>
+            <button class="btn ghost modal-card__close" type="button" data-dialog-close>Close</button>
+        </div>
+        <?php if (!empty($card['intro_text'])): ?>
+            <p class="lede"><?= Util::e($card['intro_text']) ?></p>
+        <?php endif; ?>
+        <ul class="feature-list">
+            <?php foreach (($card['detail_items'] ?? []) as $detail): ?>
+                <li>
+                    <?php if (!empty($detail['certification_name'])): ?>
+                        <?= Util::e(trim(implode(' | ', array_filter([$detail['certification_name'], $detail['issuer'] ?? '', $detail['issued_label'] ?? ''])))) ?>
+                    <?php else: ?>
+                        <?= Util::e($detail['label'] ?? '') ?>
+                        <?php if (!empty($detail['detail_text'])): ?>
+                            <span class="modal-inline-note"> - <?= Util::e($detail['detail_text']) ?></span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </dialog>
+<?php endforeach; ?>
+
+<?php foreach ($portfolioItems as $item): ?>
+    <dialog class="modal-card" id="portfolio-<?= (int) $item['id'] ?>">
+        <div class="modal-card__header">
+            <div>
+                <?php if (!empty($item['category'])): ?>
+                    <p class="eyebrow"><?= Util::e($item['category']) ?></p>
+                <?php endif; ?>
+                <h2><?= Util::e($item['title']) ?></h2>
+            </div>
+            <button class="btn ghost modal-card__close" type="button" data-dialog-close>Close</button>
+        </div>
+        <?php if (!empty($item['summary'])): ?>
+            <p class="lede"><?= Util::e($item['summary']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($item['problem_text'])): ?>
+            <p><strong>Problem:</strong> <?= Util::e($item['problem_text']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($item['approach_text'])): ?>
+            <p><strong>Approach:</strong> <?= Util::e($item['approach_text']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($item['outcome'])): ?>
+            <p><strong>Outcome:</strong> <?= Util::e($item['outcome']) ?></p>
+        <?php endif; ?>
+        <?php if (!empty($item['tech_text'])): ?>
+            <p><strong>Technology:</strong> <?= Util::e($item['tech_text']) ?></p>
+        <?php endif; ?>
+        <div class="actions">
+            <?php if (!empty($item['demo_url'])): ?>
+                <a class="btn primary" href="<?= Util::e($item['demo_url']) ?>" target="_blank" rel="noreferrer">View project</a>
+            <?php endif; ?>
+            <?php if (!empty($item['repo_url'])): ?>
+                <a class="btn ghost" href="<?= Util::e($item['repo_url']) ?>" target="_blank" rel="noreferrer">View repository</a>
+            <?php endif; ?>
+            <?php if (empty($item['demo_url']) && !empty($item['link_url'])): ?>
+                <a class="btn primary" href="<?= Util::e($item['link_url']) ?>" target="_blank" rel="noreferrer"><?= Util::e($item['link_label'] ?: 'View project') ?></a>
+            <?php endif; ?>
+        </div>
+    </dialog>
+<?php endforeach; ?>
+
+<script>
+document.addEventListener('click', function (event) {
+    const trigger = event.target.closest('[data-dialog-target]');
+    if (trigger) {
+        const dialog = document.getElementById(trigger.getAttribute('data-dialog-target'));
+        if (dialog && typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        }
+    }
+
+    if (event.target.matches('[data-dialog-close]')) {
+        const dialog = event.target.closest('dialog');
+        if (dialog) {
+            dialog.close();
+        }
+    }
+});
+
+document.querySelectorAll('dialog').forEach(function (dialog) {
+    dialog.addEventListener('click', function (event) {
+        const bounds = dialog.getBoundingClientRect();
+        const inside = bounds.top <= event.clientY && event.clientY <= bounds.bottom
+            && bounds.left <= event.clientX && event.clientX <= bounds.right;
+        if (!inside) {
+            dialog.close();
+        }
+    });
+});
+</script>

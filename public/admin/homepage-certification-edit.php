@@ -35,6 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Certification not found.';
+        } else {
+            $repo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_certification_deleted', ['certification_id' => $entryId], Util::clientIp());
+            header('Location: /admin/homepage-certifications.php');
+            exit;
+        }
+    }
+
     $data = [
         'certification_name' => trim((string) ($_POST['certification_name'] ?? '')),
         'issuer' => trim((string) ($_POST['issuer'] ?? '')),

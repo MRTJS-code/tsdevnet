@@ -43,6 +43,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid CSRF token.';
     }
 
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($entryId <= 0 || !$entry) {
+            $errors[] = 'Timeline entry not found.';
+        } else {
+            $repo->delete($entryId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_experience_deleted', ['experience_id' => $entryId], Util::clientIp());
+            header('Location: /admin/homepage-experience.php');
+            exit;
+        }
+    }
+
     $data = [
         'role_title' => trim((string) ($_POST['role_title'] ?? '')),
         'organisation' => trim((string) ($_POST['organisation'] ?? '')),

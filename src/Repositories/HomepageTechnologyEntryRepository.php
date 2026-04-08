@@ -97,6 +97,12 @@ final class HomepageTechnologyEntryRepository
         ]);
     }
 
+    public function delete(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM profile_technologies WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     private function mapRow(array $row): array
     {
         return $row + [

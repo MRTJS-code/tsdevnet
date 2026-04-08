@@ -16,7 +16,7 @@ $admin = $app['services']['admin_auth']->currentAdmin();
 $groupId = (int) ($_GET['id'] ?? 0);
 $errors = [];
 $group = $groupId > 0 ? $repo->findById($groupId) : null;
-$allowedKeys = ['core_strengths', 'supporting_tools', 'exposure'];
+$allowedKeys = ['core_strengths', 'supporting_tools', 'exposure_familiarity'];
 
 if (!$group) {
     $group = [
@@ -33,6 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Security::enforceSameOrigin($app['config']);
     if (!Security::verifyCsrf($_POST['csrf_token'] ?? null)) {
         $errors[] = 'Invalid CSRF token.';
+    }
+
+    if (($_POST['form_action'] ?? 'save') === 'delete' && !$errors) {
+        if ($groupId <= 0 || !$group) {
+            $errors[] = 'Technology group not found.';
+        } else {
+            $repo->delete($groupId);
+            $audit->log('admin', $admin ? (int) $admin['id'] : null, 'homepage_technology_group_deleted', ['group_id' => $groupId], Util::clientIp());
+            header('Location: /admin/homepage-technologies.php');
+            exit;
+        }
     }
 
     $data = [

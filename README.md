@@ -3,6 +3,7 @@
 ## Phase 1D profile content update
 - `004_phase1c_homepage_typed_content.sql` remains the transitional typed-homepage step.
 - `005_profile_content_model.sql` is now the canonical profile-content schema for the homepage.
+- `006_homepage_layout_refinements.sql` adds homepage wrapper placement (`top`, `middle`, `bottom`) for flexible sections.
 - `content_blocks` and `content_items` remain available only for lightweight flexible text sections.
 - Rule-based assistant knowledge remains DB-managed via `assistant_knowledge`.
 - Admin auth remains DB-backed via `admin_users`.
@@ -11,6 +12,7 @@
   mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
   mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
   mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
+  mysql -u USER -p -h HOST DB_NAME < migrations/006_homepage_layout_refinements.sql
   php scripts/seed_phase1b.php
   php scripts/seed_profile_template.php
   ```
@@ -52,6 +54,7 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
    mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/006_homepage_layout_refinements.sql
    php scripts/seed_phase1b.php
    php scripts/seed_profile_template.php
    ```

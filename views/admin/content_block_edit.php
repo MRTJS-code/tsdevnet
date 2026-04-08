@@ -31,6 +31,13 @@ use App\Support\Util;
                     <?php endforeach; ?>
                 </select>
             </label>
+            <label>Homepage placement
+                <select name="homepage_position" required>
+                    <?php foreach ($positionOptions as $position): ?>
+                        <option value="<?= Util::e($position) ?>" <?= ($block['homepage_position'] ?? 'top') === $position ? 'selected' : '' ?>><?= Util::e(ucfirst($position)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
             <label>Title
                 <input type="text" name="title" value="<?= Util::e($block['title']) ?>">
             </label>
@@ -40,6 +47,7 @@ use App\Support\Util;
             <label>Body text
                 <textarea name="body_text"><?= Util::e($block['body_text']) ?></textarea>
             </label>
+            <p class="help-text">Use these wrapper blocks to introduce the typed Core Strengths, Grouped Capability, or chatbot/footer-adjacent sections.</p>
             <label>Metadata JSON
                 <textarea name="meta_json"><?= Util::e($block['meta_json']) ?></textarea>
             </label>
@@ -50,7 +58,12 @@ use App\Support\Util;
                 <input type="checkbox" name="is_active" value="1" <?= !empty($block['is_active']) ? 'checked' : '' ?>>
                 <span>Active</span>
             </label>
-            <button class="btn primary" type="submit">Save block</button>
+            <div class="actions">
+                <button class="btn primary" type="submit">Save block</button>
+                <?php if (!empty($block['id'])): ?>
+                    <button class="btn danger" type="submit" name="form_action" value="delete" onclick="return confirm('Are you sure you want to delete this block and its items?');">Delete block</button>
+                <?php endif; ?>
+            </div>
         </form>
     </section>
 </main>

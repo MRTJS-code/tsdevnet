@@ -1,18 +1,23 @@
 # Professional Profile and Recruiter Portal (PHP 8 + MySQL 8)
 
-## Phase 1C homepage/content update
-- Public homepage content now uses typed homepage tables for the main profile structure.
+## Phase 1D profile content update
+- `004_phase1c_homepage_typed_content.sql` remains the transitional typed-homepage step.
+- `005_profile_content_model.sql` is now the canonical profile-content schema for the homepage.
 - `content_blocks` and `content_items` remain available only for lightweight flexible text sections.
-- Rule-based assistant knowledge is now intended to be DB-managed via `assistant_knowledge`.
-- Admin auth is now DB-backed via `admin_users`.
-- Run the new migrations and seed script after the Phase 1A setup:
+- Rule-based assistant knowledge remains DB-managed via `assistant_knowledge`.
+- Admin auth remains DB-backed via `admin_users`.
+- Run the migrations and seed scripts in this order:
   ```sh
   mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
   mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
+  mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
   php scripts/seed_phase1b.php
+  php scripts/seed_profile_template.php
   ```
-- The seed script creates neutral typed homepage placeholder content, optional flexible blocks, generic assistant knowledge, and the initial admin user. Real personal content should be entered through the admin UI, not committed to the repo.
-- See `docs/homepage-content-model.md` for the homepage model rationale and table split.
+- `seed_phase1b.php` now handles Phase 1B bootstrap concerns only: admin user bootstrap and generic assistant rules.
+- `seed_profile_template.php` seeds neutral reusable profile content for forks.
+- Copy `scripts/local/seed_tony_profile.php.example` to `scripts/local/seed_tony_profile.php` for Tony-specific live content, then run it locally. Do not commit the copied file.
+- See `docs/homepage-content-model.md` for the earlier homepage model rationale. Phase 1D makes the profile-content tables canonical.
 
 Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basic CRM tables, and a demo chat UI.
 
@@ -41,6 +46,21 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
    Ensure `vendor/autoload.php` is uploaded with the app. If PHPMailer is missing, the Mailer falls back to `mail()`.
 
 4. Deploy files; point web root to `public/`. Keep `config.php` **out of version control**.
+5. For the canonical profile-content model, then run:
+   ```sh
+   mysql -u USER -p -h HOST DB_NAME < migrations/002_phase1a_indexes.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/003_phase1b_content_cms.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/004_phase1c_homepage_typed_content.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
+   php scripts/seed_phase1b.php
+   php scripts/seed_profile_template.php
+   ```
+6. For a local/private Tony deployment only:
+   ```sh
+   copy scripts\\local\\seed_tony_profile.php.example scripts\\local\\seed_tony_profile.php
+   php scripts\\local\\seed_tony_profile.php
+   ```
+   Keep `scripts/local/seed_tony_profile.php` out of version control.
 
 ## Turnstile
 - Create a Turnstile site + secret key at Cloudflare.

@@ -13,50 +13,47 @@ final class HomepageDocumentRepository
 
     public function listAll(bool $activeOnly = false): array
     {
-        $query = 'SELECT * FROM homepage_documents';
+        $query = 'SELECT * FROM documents';
         if ($activeOnly) {
             $query .= ' WHERE is_active = 1';
         }
-        $query .= ' ORDER BY sort_order ASC, id ASC';
+        $query .= ' ORDER BY display_order ASC, id ASC';
 
         $stmt = $this->pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(fn (array $row): array => $this->mapRow($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM homepage_documents WHERE id = ? LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM documents WHERE id = ? LIMIT 1');
         $stmt->execute([$id]);
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $record ?: null;
+        return $record ? $this->mapRow($record) : null;
     }
 
     public function findByDocumentKey(string $documentKey): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM homepage_documents WHERE document_key = ? LIMIT 1');
-        $stmt->execute([$documentKey]);
+        $stmt = $this->pdo->prepare('SELECT * FROM documents WHERE document_key = ? LIMIT 1');
+        $stmt->execute([$this->canonicalKey($documentKey)]);
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $record ?: null;
+        return $record ? $this->mapRow($record) : null;
     }
 
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO homepage_documents (document_key, document_type, title, description_text, file_path, external_url, mime_type, file_size_bytes, sort_order, is_active, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
+            'INSERT INTO documents (document_key, label, file_path, mime_type, is_public, display_order, is_active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
         );
         $stmt->execute([
-            $data['document_key'],
-            $data['document_type'],
-            $data['title'],
-            $data['description_text'] ?: null,
-            $data['file_path'] ?: null,
-            $data['external_url'] ?: null,
-            $data['mime_type'] ?: null,
-            $data['file_size_bytes'] ? (int) $data['file_size_bytes'] : null,
-            (int) ($data['sort_order'] ?? 0),
+            $this->canonicalKey($data['document_key']),
+            $data['title'] ?? $data['label'],
+            ($data['file_path'] ?? '') ?: null,
+            ($data['mime_type'] ?? '') ?: null,
+            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) ? 1 : 0),
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
         ]);
 
@@ -66,20 +63,17 @@ final class HomepageDocumentRepository
     public function update(int $id, array $data): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE homepage_documents
-             SET document_key = ?, document_type = ?, title = ?, description_text = ?, file_path = ?, external_url = ?, mime_type = ?, file_size_bytes = ?, sort_order = ?, is_active = ?, updated_at = NOW()
+            'UPDATE documents
+             SET document_key = ?, label = ?, file_path = ?, mime_type = ?, is_public = ?, display_order = ?, is_active = ?, updated_at = NOW()
              WHERE id = ?'
         );
         $stmt->execute([
-            $data['document_key'],
-            $data['document_type'],
-            $data['title'],
-            $data['description_text'] ?: null,
-            $data['file_path'] ?: null,
-            $data['external_url'] ?: null,
-            $data['mime_type'] ?: null,
-            $data['file_size_bytes'] ? (int) $data['file_size_bytes'] : null,
-            (int) ($data['sort_order'] ?? 0),
+            $this->canonicalKey($data['document_key']),
+            $data['title'] ?? $data['label'],
+            ($data['file_path'] ?? '') ?: null,
+            ($data['mime_type'] ?? '') ?: null,
+            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) ? 1 : 0),
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
             $id,
         ]);
@@ -94,5 +88,37 @@ final class HomepageDocumentRepository
         }
 
         return $this->create($data);
+    }
+
+    private function mapRow(array $row): array
+    {
+        $legacyKey = $this->legacyKey($row['document_key']);
+
+        return $row + [
+            'document_key' => $legacyKey,
+            'document_type' => $legacyKey === 'hero_headshot' ? 'headshot' : 'cv_pdf',
+            'title' => $row['label'],
+            'sort_order' => (int) ($row['display_order'] ?? 0),
+            'file_size_bytes' => null,
+            'external_url' => '',
+        ];
+    }
+
+    private function canonicalKey(string $documentKey): string
+    {
+        return match ($documentKey) {
+            'hero_headshot' => 'headshot',
+            'footer_cv' => 'cv',
+            default => $documentKey,
+        };
+    }
+
+    private function legacyKey(string $documentKey): string
+    {
+        return match ($documentKey) {
+            'headshot' => 'hero_headshot',
+            'cv' => 'footer_cv',
+            default => $documentKey,
+        };
     }
 }

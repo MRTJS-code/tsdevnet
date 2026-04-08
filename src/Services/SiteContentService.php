@@ -7,6 +7,7 @@ use App\Repositories\ContentBlockRepository;
 use App\Repositories\ContentItemRepository;
 use App\Repositories\HomepageCertificationRepository;
 use App\Repositories\HomepageDocumentRepository;
+use App\Repositories\HomepageExperienceHighlightRepository;
 use App\Repositories\HomepageExperienceRepository;
 use App\Repositories\HomepagePortfolioRepository;
 use App\Repositories\HomepageTechnologyEntryRepository;
@@ -19,6 +20,7 @@ final class SiteContentService
     public function __construct(
         private SiteSettingRepository $settings,
         private HomepageExperienceRepository $experience,
+        private HomepageExperienceHighlightRepository $experienceHighlights,
         private HomepageCertificationRepository $certifications,
         private HomepageTechnologyGroupRepository $technologyGroups,
         private HomepageTechnologyEntryRepository $technologyEntries,
@@ -34,6 +36,7 @@ final class SiteContentService
     {
         $defaults = $this->defaultHomepage();
         $settings = $this->settings->getAllIndexed();
+        $singleton = $this->settings->getSingleton() ?? [];
         $documents = $this->documentsByKey();
         $flexBlocks = $this->flexibleBlocks();
 
@@ -70,7 +73,7 @@ final class SiteContentService
                     'location' => $this->settingValue($settings, 'profile_location', $defaults['hero']['profile_card']['location']),
                     'availability' => $this->settingValue($settings, 'profile_availability', $defaults['hero']['profile_card']['availability']),
                 ],
-                'headshot' => $documents['hero_headshot'] ?? $defaults['hero']['headshot'],
+                'headshot' => $this->resolveHeadshotDocument($singleton, $documents, $defaults['hero']['headshot']),
                 'chatbot_teaser' => [
                     'enabled' => $this->boolSetting($settings, 'chatbot_teaser_enabled', $defaults['hero']['chatbot_teaser']['enabled']),
                     'label' => $this->settingValue($settings, 'chatbot_teaser_label', $defaults['hero']['chatbot_teaser']['label']),
@@ -87,9 +90,9 @@ final class SiteContentService
                 'body_text' => $this->settingValue($settings, 'footer_body', $defaults['footer_contact']['body_text']),
                 'email' => $this->settingValue($settings, 'contact_email', $defaults['footer_contact']['email']),
                 'phone' => $this->settingValue($settings, 'contact_phone', $defaults['footer_contact']['phone']),
-                'location' => $this->settingValue($settings, 'profile_location', $defaults['footer_contact']['location']),
-                'cv' => $documents['footer_cv'] ?? $defaults['footer_contact']['cv'],
-                'links' => $this->footerLinks($documents, $defaults['footer_contact']['links']),
+                'location' => $this->settingValue($settings, 'contact_location', $defaults['footer_contact']['location']),
+                'cv' => $this->resolveCvDocument($singleton, $documents, $defaults['footer_contact']['cv']),
+                'links' => $this->footerLinks($settings, $defaults['footer_contact']['links']),
             ],
         ];
     }
@@ -196,14 +199,23 @@ final class SiteContentService
             return $defaults;
         }
 
-        return array_map(static function (array $row): array {
+        $highlightsByExperienceId = $this->experienceHighlights->listByExperienceIds(array_map(
+            static fn (array $row): int => (int) $row['id'],
+            $rows
+        ));
+
+        return array_map(static function (array $row) use ($highlightsByExperienceId): array {
             return [
                 'id' => (int) $row['id'],
                 'role_title' => $row['role_title'],
-                'organisation' => $row['organisation'],
+                'organisation' => $row['organisation'] ?? $row['company_name'],
                 'period_label' => $row['period_label'],
                 'summary' => $row['summary'] ?? '',
                 'highlight_text' => $row['highlight_text'] ?? '',
+                'highlights' => array_map(
+                    static fn (array $highlight): string => $highlight['highlight_text'],
+                    $highlightsByExperienceId[(int) $row['id']] ?? []
+                ),
             ];
         }, $rows);
     }
@@ -276,21 +288,51 @@ final class SiteContentService
         ];
     }
 
-    private function footerLinks(array $documents, array $defaults): array
+    private function footerLinks(array $settings, array $defaults): array
     {
-        $links = [];
-        foreach ($defaults as $key => $default) {
-            $links[] = $documents[$key] ?? $default;
+        return [
+            [
+                'document_key' => 'linkedin',
+                'title' => 'LinkedIn',
+                'public_url' => $this->settingValue($settings, 'linkedin_url', $defaults['linkedin']['public_url']),
+            ],
+            [
+                'document_key' => 'github',
+                'title' => 'GitHub',
+                'public_url' => $this->settingValue($settings, 'github_url', $defaults['github']['public_url']),
+            ],
+        ];
+    }
+
+    private function resolveHeadshotDocument(array $singleton, array $documents, array $default): array
+    {
+        $document = $this->resolveDocumentById($singleton['headshot_document_id'] ?? null);
+        if ($document !== null) {
+            return $document;
         }
 
-        foreach ($documents as $documentKey => $document) {
-            if ($document['document_type'] !== 'footer_link' || isset($defaults[$documentKey])) {
-                continue;
-            }
-            $links[] = $document;
+        return $documents['hero_headshot'] ?? $default;
+    }
+
+    private function resolveCvDocument(array $singleton, array $documents, array $default): array
+    {
+        $document = $this->resolveDocumentById($singleton['cv_document_id'] ?? null);
+        if ($document !== null) {
+            return $document;
         }
 
-        return $links;
+        return $documents['footer_cv'] ?? $default;
+    }
+
+    private function resolveDocumentById(mixed $documentId): ?array
+    {
+        $id = (int) $documentId;
+        if ($id <= 0) {
+            return null;
+        }
+
+        $document = $this->documents->findById($id);
+        return $document ? $this->normalizeDocument($document) : null;
     }
 
     private function settingValue(array $settings, string $key, string $default = ''): string
@@ -395,7 +437,7 @@ final class SiteContentService
                     ],
                 ],
                 [
-                    'group_key' => 'exposure',
+                    'group_key' => 'exposure_familiarity',
                     'title' => 'Exposure and familiarity',
                     'intro_text' => 'Adjacent technologies that add context without overstating depth.',
                     'items' => [

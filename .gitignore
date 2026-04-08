@@ -5,6 +5,7 @@
 /.phpunit.result.cache
 /storage/
 /node_modules/
+/scripts/local/
 Thumbs.db
 Desktop.ini
 

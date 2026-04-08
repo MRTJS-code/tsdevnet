@@ -13,37 +13,38 @@ final class HomepageTestimonialRepository
 
     public function listAll(bool $activeOnly = false): array
     {
-        $query = 'SELECT * FROM homepage_testimonials';
+        $query = 'SELECT * FROM testimonials';
         if ($activeOnly) {
             $query .= ' WHERE is_active = 1';
         }
-        $query .= ' ORDER BY sort_order ASC, id ASC';
+        $query .= ' ORDER BY display_order ASC, id ASC';
 
         $stmt = $this->pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(fn (array $row): array => $this->mapRow($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM homepage_testimonials WHERE id = ? LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM testimonials WHERE id = ? LIMIT 1');
         $stmt->execute([$id]);
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $record ?: null;
+        return $record ? $this->mapRow($record) : null;
     }
 
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO homepage_testimonials (quote_text, person_name, person_title, organisation, sort_order, is_active, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())'
+            'INSERT INTO testimonials (quote_text, source_name, source_title, source_context, is_featured, display_order, is_active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
         );
         $stmt->execute([
             $data['quote_text'],
-            $data['person_name'],
-            $data['person_title'] ?: null,
-            $data['organisation'] ?: null,
-            (int) ($data['sort_order'] ?? 0),
+            $data['person_name'] ?? $data['source_name'],
+            ($data['person_title'] ?? $data['source_title'] ?? '') ?: null,
+            ($data['organisation'] ?? $data['source_context'] ?? '') ?: null,
+            !empty($data['is_featured']) ? 1 : 0,
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
         ]);
 
@@ -53,18 +54,29 @@ final class HomepageTestimonialRepository
     public function update(int $id, array $data): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE homepage_testimonials
-             SET quote_text = ?, person_name = ?, person_title = ?, organisation = ?, sort_order = ?, is_active = ?, updated_at = NOW()
+            'UPDATE testimonials
+             SET quote_text = ?, source_name = ?, source_title = ?, source_context = ?, is_featured = ?, display_order = ?, is_active = ?, updated_at = NOW()
              WHERE id = ?'
         );
         $stmt->execute([
             $data['quote_text'],
-            $data['person_name'],
-            $data['person_title'] ?: null,
-            $data['organisation'] ?: null,
-            (int) ($data['sort_order'] ?? 0),
+            $data['person_name'] ?? $data['source_name'],
+            ($data['person_title'] ?? $data['source_title'] ?? '') ?: null,
+            ($data['organisation'] ?? $data['source_context'] ?? '') ?: null,
+            !empty($data['is_featured']) ? 1 : 0,
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
             $id,
         ]);
+    }
+
+    private function mapRow(array $row): array
+    {
+        return $row + [
+            'person_name' => $row['source_name'],
+            'person_title' => $row['source_title'] ?? '',
+            'organisation' => $row['source_context'] ?? '',
+            'sort_order' => (int) ($row['display_order'] ?? 0),
+        ];
     }
 }

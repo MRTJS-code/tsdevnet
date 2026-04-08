@@ -13,45 +13,45 @@ final class HomepageTechnologyGroupRepository
 
     public function listAll(bool $activeOnly = false): array
     {
-        $query = 'SELECT * FROM homepage_technology_groups';
+        $query = 'SELECT * FROM profile_technology_groups';
         if ($activeOnly) {
             $query .= ' WHERE is_active = 1';
         }
-        $query .= ' ORDER BY sort_order ASC, id ASC';
+        $query .= ' ORDER BY display_order ASC, id ASC';
 
         $stmt = $this->pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(fn (array $row): array => $this->mapRow($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM homepage_technology_groups WHERE id = ? LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM profile_technology_groups WHERE id = ? LIMIT 1');
         $stmt->execute([$id]);
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $record ?: null;
+        return $record ? $this->mapRow($record) : null;
     }
 
     public function findByGroupKey(string $groupKey): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM homepage_technology_groups WHERE group_key = ? LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM profile_technology_groups WHERE group_key = ? LIMIT 1');
         $stmt->execute([$groupKey]);
         $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $record ?: null;
+        return $record ? $this->mapRow($record) : null;
     }
 
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO homepage_technology_groups (group_key, title, intro_text, sort_order, is_active, created_at, updated_at)
+            'INSERT INTO profile_technology_groups (group_key, group_label, intro_text, display_order, is_active, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, NOW(), NOW())'
         );
         $stmt->execute([
             $data['group_key'],
-            $data['title'],
-            $data['intro_text'] ?: null,
-            (int) ($data['sort_order'] ?? 0),
+            $data['title'] ?? $data['group_label'],
+            ($data['intro_text'] ?? '') ?: null,
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
         ]);
 
@@ -61,15 +61,15 @@ final class HomepageTechnologyGroupRepository
     public function update(int $id, array $data): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE homepage_technology_groups
-             SET group_key = ?, title = ?, intro_text = ?, sort_order = ?, is_active = ?, updated_at = NOW()
+            'UPDATE profile_technology_groups
+             SET group_key = ?, group_label = ?, intro_text = ?, display_order = ?, is_active = ?, updated_at = NOW()
              WHERE id = ?'
         );
         $stmt->execute([
             $data['group_key'],
-            $data['title'],
-            $data['intro_text'] ?: null,
-            (int) ($data['sort_order'] ?? 0),
+            $data['title'] ?? $data['group_label'],
+            ($data['intro_text'] ?? '') ?: null,
+            (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
             $id,
         ]);
@@ -84,5 +84,13 @@ final class HomepageTechnologyGroupRepository
         }
 
         return $this->create($data);
+    }
+
+    private function mapRow(array $row): array
+    {
+        return $row + [
+            'title' => $row['group_label'],
+            'sort_order' => (int) ($row['display_order'] ?? 0),
+        ];
     }
 }

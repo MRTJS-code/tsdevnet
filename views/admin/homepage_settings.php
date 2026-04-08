@@ -28,6 +28,9 @@ use App\Support\Util;
             <label>Hero eyebrow
                 <input type="text" name="hero_eyebrow" value="<?= Util::e($settings['hero_eyebrow'] ?? '') ?>">
             </label>
+            <label>Site title
+                <input type="text" name="site_title" value="<?= Util::e($settings['site_title'] ?? '') ?>">
+            </label>
             <label>Hero title
                 <input type="text" name="hero_title" value="<?= Util::e($settings['hero_title'] ?? '') ?>" required>
             </label>
@@ -48,6 +51,10 @@ use App\Support\Util;
             </label>
             <label>Profile availability note
                 <input type="text" name="profile_availability" value="<?= Util::e($settings['profile_availability'] ?? '') ?>">
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" name="open_to_work" value="1" <?= !empty($settings['open_to_work']) && $settings['open_to_work'] !== '0' ? 'checked' : '' ?>>
+                <span>Open to work</span>
             </label>
             <label>CTA mode
                 <select name="cta_mode">
@@ -80,6 +87,15 @@ use App\Support\Util;
             </label>
             <label>Contact phone
                 <input type="text" name="contact_phone" value="<?= Util::e($settings['contact_phone'] ?? '') ?>">
+            </label>
+            <label>Contact location
+                <input type="text" name="contact_location" value="<?= Util::e($settings['contact_location'] ?? '') ?>">
+            </label>
+            <label>LinkedIn URL
+                <input type="text" name="linkedin_url" value="<?= Util::e($settings['linkedin_url'] ?? '') ?>">
+            </label>
+            <label>GitHub URL
+                <input type="text" name="github_url" value="<?= Util::e($settings['github_url'] ?? '') ?>">
             </label>
             <label class="checkbox">
                 <input type="checkbox" name="chatbot_teaser_enabled" value="1" <?= !empty($settings['chatbot_teaser_enabled']) && $settings['chatbot_teaser_enabled'] !== '0' ? 'checked' : '' ?>>

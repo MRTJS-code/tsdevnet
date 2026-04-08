@@ -44,9 +44,6 @@ use App\Support\Util;
             <label>Description
                 <textarea name="description_text"><?= Util::e($entry['description_text']) ?></textarea>
             </label>
-            <label>External URL
-                <input type="text" name="external_url" value="<?= Util::e($entry['external_url']) ?>">
-            </label>
             <label>Upload file
                 <input type="file" name="upload_file" accept=".jpg,.jpeg,.png,.webp,.pdf">
             </label>

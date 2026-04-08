@@ -17,8 +17,8 @@ $admin = $app['services']['admin_auth']->currentAdmin();
 $entryId = (int) ($_GET['id'] ?? 0);
 $errors = [];
 $entry = $entryId > 0 ? $repo->findById($entryId) : null;
-$allowedTypes = ['headshot', 'cv_pdf', 'footer_link'];
-$allowedKeys = ['hero_headshot', 'footer_cv', 'linkedin', 'github'];
+$allowedTypes = ['headshot', 'cv_pdf'];
+$allowedKeys = ['hero_headshot', 'footer_cv'];
 
 if (!$entry) {
     $entry = [
@@ -71,18 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $hasUpload = !empty($_FILES['upload_file']['name']);
-    if ($data['document_type'] === 'footer_link') {
-        $data['file_path'] = '';
-        $data['mime_type'] = '';
-        $data['file_size_bytes'] = 0;
-        if ($data['external_url'] === '') {
-            $errors[] = 'Footer links require an external URL.';
-        }
-    } else {
-        $data['external_url'] = '';
-        if (!$hasUpload && $data['file_path'] === '') {
-            $errors[] = 'Upload a file for this document type.';
-        }
+    $data['external_url'] = '';
+    if (!$hasUpload && $data['file_path'] === '') {
+        $errors[] = 'Upload a file for this document type.';
     }
 
     if (!$errors && $hasUpload) {

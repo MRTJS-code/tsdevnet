@@ -36,8 +36,8 @@ use App\Support\Util;
             <label>Summary
                 <textarea name="summary"><?= Util::e($entry['summary']) ?></textarea>
             </label>
-            <label>Highlight text
-                <input type="text" name="highlight_text" value="<?= Util::e($entry['highlight_text']) ?>">
+            <label>Highlights
+                <textarea name="highlight_lines" rows="5" placeholder="Enter one highlight per line"><?= Util::e($entry['highlight_lines'] ?? '') ?></textarea>
             </label>
             <label>Sort order
                 <input type="number" name="sort_order" value="<?= (int) $entry['sort_order'] ?>">

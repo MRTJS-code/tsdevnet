@@ -50,7 +50,7 @@
         <article class="card">
             <p class="eyebrow">Documents</p>
             <h2>Headshot and CV</h2>
-            <p>Upload the headshot and PDF CV, and manage footer links like LinkedIn and GitHub.</p>
+            <p>Upload the headshot and PDF CV. Social links now live in the homepage settings screen.</p>
             <a class="btn ghost" href="/admin/homepage-documents.php">Manage documents</a>
         </article>
         <article class="card">

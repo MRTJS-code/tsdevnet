@@ -16,6 +16,7 @@ $admin = $app['services']['admin_auth']->currentAdmin();
 $errors = [];
 
 $fieldTypes = [
+    'site_title' => 'string',
     'hero_eyebrow' => 'string',
     'hero_title' => 'string',
     'hero_summary' => 'text',
@@ -24,6 +25,7 @@ $fieldTypes = [
     'profile_role' => 'string',
     'profile_location' => 'string',
     'profile_availability' => 'string',
+    'open_to_work' => 'bool',
     'cta_mode' => 'string',
     'cta_primary_label' => 'string',
     'cta_primary_url' => 'url',
@@ -33,6 +35,9 @@ $fieldTypes = [
     'footer_body' => 'text',
     'contact_email' => 'email',
     'contact_phone' => 'tel',
+    'contact_location' => 'string',
+    'linkedin_url' => 'url',
+    'github_url' => 'url',
     'chatbot_teaser_enabled' => 'bool',
     'chatbot_teaser_label' => 'string',
 ];

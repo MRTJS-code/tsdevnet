@@ -11,6 +11,7 @@ use App\Repositories\ContentItemRepository;
 use App\Repositories\HomepageCertificationRepository;
 use App\Repositories\HomepageDocumentRepository;
 use App\Repositories\HomepageExperienceRepository;
+use App\Repositories\HomepageExperienceHighlightRepository;
 use App\Repositories\HomepagePortfolioRepository;
 use App\Repositories\HomepageTechnologyEntryRepository;
 use App\Repositories\HomepageTechnologyGroupRepository;
@@ -63,6 +64,7 @@ $contentItemRepository = new ContentItemRepository($pdo);
 $assistantKnowledgeRepository = new AssistantKnowledgeRepository($pdo);
 $siteSettingRepository = new SiteSettingRepository($pdo);
 $homepageExperienceRepository = new HomepageExperienceRepository($pdo);
+$homepageExperienceHighlightRepository = new HomepageExperienceHighlightRepository($pdo);
 $homepageCertificationRepository = new HomepageCertificationRepository($pdo);
 $homepageTechnologyGroupRepository = new HomepageTechnologyGroupRepository($pdo);
 $homepageTechnologyEntryRepository = new HomepageTechnologyEntryRepository($pdo);
@@ -82,6 +84,7 @@ $homepageUploadService = new HomepageUploadService($root);
 $siteContentService = new SiteContentService(
     $siteSettingRepository,
     $homepageExperienceRepository,
+    $homepageExperienceHighlightRepository,
     $homepageCertificationRepository,
     $homepageTechnologyGroupRepository,
     $homepageTechnologyEntryRepository,
@@ -103,6 +106,7 @@ return [
         'assistant_knowledge' => $assistantKnowledgeRepository,
         'site_settings' => $siteSettingRepository,
         'homepage_experience' => $homepageExperienceRepository,
+        'homepage_experience_highlights' => $homepageExperienceHighlightRepository,
         'homepage_certifications' => $homepageCertificationRepository,
         'homepage_technology_groups' => $homepageTechnologyGroupRepository,
         'homepage_technology_entries' => $homepageTechnologyEntryRepository,

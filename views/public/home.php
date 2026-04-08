@@ -95,6 +95,13 @@ $homepageIntro = $siteSettings['flexible_sections']['homepage_intro'] ?? null;
                         <?php if (!empty($entry['summary'])): ?>
                             <p><?= Util::e($entry['summary']) ?></p>
                         <?php endif; ?>
+                        <?php if (!empty($entry['highlights'])): ?>
+                            <ul class="feature-list">
+                                <?php foreach ($entry['highlights'] as $highlight): ?>
+                                    <li><?= Util::e($highlight) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                         <?php if (!empty($entry['highlight_text'])): ?>
                             <p class="timeline__highlight"><?= Util::e($entry['highlight_text']) ?></p>
                         <?php endif; ?>

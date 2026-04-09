@@ -1,0 +1,31 @@
+{
+  "name": "tsdevnet",
+  "version": "1.0.0",
+  "description": "- Hero is fixed and driven by `site_settings` plus the headshot document. - Footer/contact/CV is fixed and driven by `site_settings` plus the CV/social document links. - Everything in the middle of the homepage is now driven by ordered `homepage_modules`. - `module_rich_text_sections` stores inline payloads for rich text / CTA-info modules. - Structured payload data still lives in typed tables for experience, certifications, technology groups, portfolio items, and testimonials. - `content_blocks` and `content_items` remain in the repo only as legacy generic CMS tables and are no longer the canonical homepage driver. - Rule-based assistant knowledge remains DB-managed via `assistant_knowledge`. - Admin auth remains DB-backed via `admin_users`.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MRTJS-code/tsdevnet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MRTJS-code/tsdevnet/issues"
+  },
+  "homepage": "https://github.com/MRTJS-code/tsdevnet#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.5.2"
+  }
+}

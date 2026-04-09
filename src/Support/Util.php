@@ -87,25 +87,19 @@ final class Util
     {
         return match ($moduleType) {
             'rich_text' => 'Rich text',
-            'experience_timeline' => 'Experience timeline',
-            'certifications' => 'Certifications',
-            'technology_groups' => 'Technology groups',
-            'featured_portfolio' => 'Featured portfolio',
-            'testimonials' => 'Testimonials',
-            'cta_info' => 'CTA / info',
+            'timeline' => 'Timeline',
+            'pill_cards' => 'Pill cards',
+            'case_studies' => 'Case studies',
+            'list' => 'List',
+            'quote_cards' => 'Quote cards',
+            'cta_banner' => 'CTA banner',
+            'media_text' => 'Media + text',
             default => ucwords(str_replace('_', ' ', $moduleType)),
         };
     }
 
     public static function homepageModuleEditorPath(string $moduleType): string
     {
-        return match ($moduleType) {
-            'experience_timeline' => '/admin/homepage-experience.php',
-            'certifications' => '/admin/homepage-certifications.php',
-            'technology_groups' => '/admin/homepage-technologies.php',
-            'featured_portfolio' => '/admin/homepage-portfolio.php',
-            'testimonials' => '/admin/homepage-testimonials.php',
-            default => '',
-        };
+        return '';
     }
 }

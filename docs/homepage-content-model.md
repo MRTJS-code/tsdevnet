@@ -1,9 +1,9 @@
 # Homepage Content Model
 
 The homepage now follows a three-part composition model:
-- fixed hero payload
+- fixed hero payload from `homepage_hero_settings`
 - ordered `homepage_modules` for the middle of the page
-- fixed footer/contact/CV payload
+- fixed footer/contact/CV payload from `homepage_footer_settings`
 
 ## Why the earlier model was not enough
 
@@ -17,19 +17,29 @@ The earlier Phase 1C/1D direction improved structure, but homepage rendering sti
 
 ### Ordered middle modules
 - `homepage_modules` stores module type, ordering, activation, and shared display metadata.
-- `module_rich_text_sections` stores inline payloads for rich text and CTA/info modules.
-- Structured data remains in typed payload tables:
-  - `profile_experience`
-  - `profile_experience_highlights`
-  - `profile_certifications`
-  - `profile_technology_groups`
-  - `profile_technologies`
-  - `portfolio_items`
-  - `testimonials`
+- `module_rich_text_payloads` stores rich text payloads.
+- `module_timeline_entries` and `module_timeline_highlights` store timeline payloads.
+- `module_pill_card_items` stores pill card payloads.
+- `module_case_study_items` stores case study payloads.
+- `module_list_items` stores list payloads.
+- `module_quote_card_items` stores quote card payloads.
+- `module_cta_banner_payloads` stores CTA banner payloads.
+- `module_media_text_payloads` stores media-text payloads.
+
+Supported module types:
+- `rich_text`
+- `timeline`
+- `pill_cards`
+- `case_studies`
+- `list`
+- `quote_cards`
+- `cta_banner`
+- `media_text`
 
 ## What stays legacy
 
 `content_blocks` and `content_items` remain in the repo as older generic CMS tables, but they are no longer the canonical homepage driver.
+Older CV-specific homepage payload tables are no longer the homepage source of truth after the modular cutover migration and reseed.
 
 ## Forkability
 

@@ -2,7 +2,7 @@
     <div>
         <p class="eyebrow">Homepage CMS</p>
         <h1>Homepage content</h1>
-        <p class="help-text">Maintain the typed homepage sections without editing templates.</p>
+        <p class="help-text">Maintain the fixed hero, ordered generic modules, and fixed footer without editing templates.</p>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/index.php">Dashboard</a>
@@ -19,8 +19,8 @@
         </article>
         <article class="card">
             <p class="eyebrow">Modules</p>
-            <h2>Ordered middle content</h2>
-            <p>Add, edit, activate, deactivate, and reorder the modular content blocks that sit between hero and footer.</p>
+            <h2>Ordered middle blocks</h2>
+            <p>Add, edit, activate, deactivate, and reorder generic rendering blocks between the fixed hero and footer.</p>
             <a class="btn ghost" href="/admin/homepage-modules.php">Manage modules</a>
         </article>
         <article class="card">

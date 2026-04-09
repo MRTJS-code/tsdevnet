@@ -26,10 +26,10 @@ use App\Support\Util;
         <form method="post" class="form">
             <input type="hidden" name="csrf_token" value="<?= Util::e(Security::csrfToken()) ?>">
             <label>Footer heading
-                <input type="text" name="footer_heading" value="<?= Util::e($settings['footer_heading'] ?? '') ?>">
+                <input type="text" name="heading" value="<?= Util::e($settings['heading'] ?? '') ?>">
             </label>
             <label>Footer body
-                <textarea name="footer_body"><?= Util::e($settings['footer_body'] ?? '') ?></textarea>
+                <textarea name="body_text"><?= Util::e($settings['body_text'] ?? '') ?></textarea>
             </label>
             <label>Contact email
                 <input type="email" name="contact_email" value="<?= Util::e($settings['contact_email'] ?? '') ?>">
@@ -39,6 +39,16 @@ use App\Support\Util;
             </label>
             <label>Contact location
                 <input type="text" name="contact_location" value="<?= Util::e($settings['contact_location'] ?? '') ?>">
+            </label>
+            <label>CV document
+                <select name="cv_document_id">
+                    <option value="0">None</option>
+                    <?php foreach ($documents as $document): ?>
+                        <option value="<?= (int) $document['id'] ?>" <?= (int) ($settings['cv_document_id'] ?? 0) === (int) $document['id'] ? 'selected' : '' ?>>
+                            <?= Util::e($document['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </label>
             <label>LinkedIn URL
                 <input type="text" name="linkedin_url" value="<?= Util::e($settings['linkedin_url'] ?? '') ?>">

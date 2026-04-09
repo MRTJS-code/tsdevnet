@@ -5,8 +5,8 @@ use App\Support\Util;
 <header class="app-header">
     <div>
         <p class="eyebrow">Homepage CMS</p>
-        <h1>Ordered middle-page modules</h1>
-        <p class="help-text">Hero and footer remain fixed. Everything between them is managed here.</p>
+        <h1>Ordered middle-page blocks</h1>
+        <p class="help-text">Hero and footer remain fixed. Everything between them is managed here as generic render blocks.</p>
     </div>
     <div class="header-actions">
         <a class="btn ghost" href="/admin/homepage.php">Homepage hub</a>

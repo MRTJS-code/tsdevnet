@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use App\Repositories\HomepageModuleRepository;
-use App\Repositories\ModuleRichTextSectionRepository;
+use App\Repositories\ModuleRichTextPayloadRepository;
 
 require_once dirname(__DIR__, 3) . '/tests/bootstrap.php';
 require_once dirname(__DIR__, 3) . '/tests/TestCase.php';
@@ -13,11 +13,11 @@ final class HomepageModuleRepositoryTest extends TestCase
     {
         $pdo = test_pdo();
         $modules = new HomepageModuleRepository($pdo);
-        $richTextSections = new ModuleRichTextSectionRepository($pdo);
+        $richTextSections = new ModuleRichTextPayloadRepository($pdo);
 
         $secondId = $modules->create([
             'module_key' => 'testimonials',
-            'module_type' => 'testimonials',
+            'module_type' => 'quote_cards',
             'eyebrow' => 'Testimonials',
             'title' => 'Selected references',
             'intro_text' => 'Quotes.',
@@ -41,8 +41,8 @@ final class HomepageModuleRepositoryTest extends TestCase
 
         $richTextSections->upsertForModule($firstId, [
             'body_text' => 'Summary body',
-            'cta_label' => 'Contact',
-            'cta_url' => '/signup.php',
+            'primary_cta_label' => 'Contact',
+            'primary_cta_url' => '/signup.php',
         ]);
 
         $all = $modules->listAll();
@@ -55,7 +55,7 @@ final class HomepageModuleRepositoryTest extends TestCase
 
         $modules->update($secondId, [
             'module_key' => 'testimonials',
-            'module_type' => 'testimonials',
+            'module_type' => 'quote_cards',
             'eyebrow' => 'Testimonials',
             'title' => 'References updated',
             'intro_text' => 'Updated.',
@@ -75,7 +75,7 @@ final class HomepageModuleRepositoryTest extends TestCase
 
         $richText = $richTextSections->findByModuleId($firstId);
         $this->assertSame('Summary body', $richText['body_text']);
-        $this->assertSame('Contact', $richText['cta_label']);
+        $this->assertSame('Contact', $richText['primary_cta_label']);
 
         $modules->delete($firstId);
         $remaining = $modules->listAll();

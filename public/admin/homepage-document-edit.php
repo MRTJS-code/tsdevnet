@@ -17,8 +17,7 @@ $admin = $app['services']['admin_auth']->currentAdmin();
 $entryId = (int) ($_GET['id'] ?? 0);
 $errors = [];
 $entry = $entryId > 0 ? $repo->findById($entryId) : null;
-$allowedTypes = ['headshot', 'cv_pdf'];
-$allowedKeys = ['hero_headshot', 'footer_cv'];
+$allowedTypes = ['headshot', 'cv_pdf', 'module_media'];
 
 if (!$entry) {
     $entry = [
@@ -69,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($data['document_type'], $allowedTypes, true)) {
         $errors[] = 'Choose a valid document type.';
     }
-    if (!in_array($data['document_key'], $allowedKeys, true)) {
-        $errors[] = 'Choose a valid document key.';
+    if ($data['document_key'] === '') {
+        $errors[] = 'Document key is required.';
     }
     if ($data['title'] === '') {
         $errors[] = 'Title is required.';
@@ -119,5 +118,4 @@ View::render('admin/homepage_document_edit', [
     'entry' => $entry,
     'errors' => $errors,
     'allowedTypes' => $allowedTypes,
-    'allowedKeys' => $allowedKeys,
 ]);

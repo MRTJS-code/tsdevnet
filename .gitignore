@@ -11,3 +11,11 @@
 /docs/*.local.md
 Thumbs.db
 Desktop.ini
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

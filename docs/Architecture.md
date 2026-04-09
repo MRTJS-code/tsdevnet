@@ -87,14 +87,17 @@ Expected behaviour:
 - modules can be reordered
 - modules can support defined content types
 
-Initial supported module types:
+Supported module types:
 - rich text
-- experience timeline
-- certifications
-- technology groups
-- featured portfolio
-- testimonials
-- CTA/info block
+- timeline
+- pill cards
+- case studies
+- list
+- quote cards
+- CTA banner
+- media + text
+
+These names describe render shape only. Editors decide whether a block represents strengths, certifications, portfolio, testimonials, or any other meaning.
 
 ### Database design guidance
 Prefer explicit structure over excessive JSON.

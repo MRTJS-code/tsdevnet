@@ -26,21 +26,28 @@ final class MySqlMigrationTest extends TestCase
             $this->assertTableExists($pdo, $databaseName, 'users');
             $this->assertTableExists($pdo, $databaseName, 'admin_users');
             $this->assertTableExists($pdo, $databaseName, 'assistant_knowledge');
-            $this->assertTableExists($pdo, $databaseName, 'site_settings');
+            $this->assertTableExists($pdo, $databaseName, 'homepage_hero_settings');
+            $this->assertTableExists($pdo, $databaseName, 'homepage_footer_settings');
             $this->assertTableExists($pdo, $databaseName, 'documents');
-            $this->assertTableExists($pdo, $databaseName, 'profile_experience');
-            $this->assertTableExists($pdo, $databaseName, 'profile_certifications');
-            $this->assertTableExists($pdo, $databaseName, 'profile_technology_groups');
-            $this->assertTableExists($pdo, $databaseName, 'portfolio_items');
-            $this->assertTableExists($pdo, $databaseName, 'testimonials');
             $this->assertTableExists($pdo, $databaseName, 'homepage_modules');
-            $this->assertTableExists($pdo, $databaseName, 'module_rich_text_sections');
+            $this->assertTableExists($pdo, $databaseName, 'module_rich_text_payloads');
+            $this->assertTableExists($pdo, $databaseName, 'module_timeline_entries');
+            $this->assertTableExists($pdo, $databaseName, 'module_pill_card_items');
+            $this->assertTableExists($pdo, $databaseName, 'module_case_study_items');
+            $this->assertTableExists($pdo, $databaseName, 'module_list_items');
+            $this->assertTableExists($pdo, $databaseName, 'module_quote_card_items');
+            $this->assertTableExists($pdo, $databaseName, 'module_cta_banner_payloads');
+            $this->assertTableExists($pdo, $databaseName, 'module_media_text_payloads');
 
             $this->assertIndexExists($pdo, $databaseName, 'users', 'idx_users_status_created_at');
             $this->assertIndexExists($pdo, $databaseName, 'homepage_modules', 'uniq_homepage_modules_key');
             $this->assertColumnExists($pdo, $databaseName, 'homepage_modules', 'module_type');
             $this->assertColumnExists($pdo, $databaseName, 'homepage_modules', 'display_order');
-            $this->assertColumnExists($pdo, $databaseName, 'module_rich_text_sections', 'cta_url');
+            $this->assertColumnExists($pdo, $databaseName, 'documents', 'document_type');
+            $this->assertColumnExists($pdo, $databaseName, 'homepage_hero_settings', 'headshot_document_id');
+            $this->assertColumnExists($pdo, $databaseName, 'homepage_footer_settings', 'cv_document_id');
+            $this->assertColumnExists($pdo, $databaseName, 'module_rich_text_payloads', 'primary_cta_url');
+            $this->assertColumnExists($pdo, $databaseName, 'module_media_text_payloads', 'media_position');
         } finally {
             try {
                 $adminPdo->exec('DROP DATABASE IF EXISTS `' . $databaseName . '`');

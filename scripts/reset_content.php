@@ -17,22 +17,22 @@ $pdo = Database::connect($config);
 $pdo->beginTransaction();
 
 try {
-    $pdo->exec('DELETE FROM module_rich_text_sections');
     $pdo->exec('DELETE FROM homepage_modules');
-    $pdo->exec('DELETE FROM content_items');
-    $pdo->exec('DELETE FROM content_blocks');
-    $pdo->exec('DELETE FROM profile_experience_highlights');
-    $pdo->exec('DELETE FROM profile_experience');
-    $pdo->exec('DELETE FROM profile_certifications');
-    $pdo->exec('DELETE FROM profile_technologies');
-    $pdo->exec('DELETE FROM profile_technology_groups');
-    $pdo->exec('DELETE FROM portfolio_items');
-    $pdo->exec('DELETE FROM testimonials');
-    $pdo->exec('DELETE FROM site_settings');
+    $pdo->exec('DELETE FROM module_rich_text_payloads');
+    $pdo->exec('DELETE FROM module_timeline_highlights');
+    $pdo->exec('DELETE FROM module_timeline_entries');
+    $pdo->exec('DELETE FROM module_pill_card_items');
+    $pdo->exec('DELETE FROM module_case_study_items');
+    $pdo->exec('DELETE FROM module_list_items');
+    $pdo->exec('DELETE FROM module_quote_card_items');
+    $pdo->exec('DELETE FROM module_cta_banner_payloads');
+    $pdo->exec('DELETE FROM module_media_text_payloads');
+    $pdo->exec('DELETE FROM homepage_hero_settings');
+    $pdo->exec('DELETE FROM homepage_footer_settings');
     $pdo->exec('DELETE FROM documents');
 
     $pdo->commit();
-    fwrite(STDOUT, "Homepage/profile content reset complete. Auth, users, chat, audit, and assistant tables were left untouched.\n");
+    fwrite(STDOUT, "Homepage modular content reset complete. Auth, users, chat, audit, assistant, and legacy profile tables were left untouched.\n");
 } catch (Throwable $exception) {
     $pdo->rollBack();
     fwrite(STDERR, $exception->getMessage() . "\n");

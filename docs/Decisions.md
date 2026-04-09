@@ -32,8 +32,13 @@ The homepage should not rely on rigid hardcoded named sections.
 Hero and footer remain fixed by design.
 Middle-page content is now driven by ordered homepage modules.
 
-### Registry plus typed payloads
-Homepage ordering and activation are handled by a module registry, while structured payloads continue to live in explicit tables for experience, certifications, technology groups, portfolio, testimonials, and rich text sections.
+### Registry plus typed block payloads
+Homepage ordering and activation are handled by a module registry, while each supported block type stores its payload in dedicated relational tables.
+
+### Module names are render types, not CV concepts
+The homepage engine should only care how a block renders.
+Editors decide whether a `list` means certifications, grouped facts, or something else.
+Editors decide whether `pill_cards` means strengths, values, or tools.
 
 ### Broad positioning
 The site should remain broad enough to support multiple senior role families rather than narrowly optimising for one job title.

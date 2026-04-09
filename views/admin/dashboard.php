@@ -24,14 +24,8 @@ use App\Support\Util;
         <article class="card">
             <p class="eyebrow">Homepage CMS</p>
             <h2>Homepage content</h2>
-            <p>Manage the typed homepage model, CTA state, grouped technologies, portfolio, testimonials, and documents.</p>
+            <p>Manage the fixed hero, ordered homepage blocks, footer settings, and homepage documents.</p>
             <a class="btn ghost" href="/admin/homepage.php">Manage homepage</a>
-        </article>
-        <article class="card">
-            <p class="eyebrow">Flexible Copy</p>
-            <h2>Flexible blocks and items</h2>
-            <p>Use generic blocks only for optional text-led sections such as a homepage intro or future chatbot teaser copy.</p>
-            <a class="btn ghost" href="/admin/content-blocks.php">Manage flexible content</a>
         </article>
         <article class="card">
             <p class="eyebrow">Assistant</p>

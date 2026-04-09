@@ -29,16 +29,16 @@ use App\Support\Util;
                 <input type="text" name="site_title" value="<?= Util::e($settings['site_title'] ?? '') ?>">
             </label>
             <label>Hero eyebrow
-                <input type="text" name="hero_eyebrow" value="<?= Util::e($settings['hero_eyebrow'] ?? '') ?>">
+                <input type="text" name="eyebrow" value="<?= Util::e($settings['eyebrow'] ?? '') ?>">
             </label>
             <label>Hero title
-                <input type="text" name="hero_title" value="<?= Util::e($settings['hero_title'] ?? '') ?>" required>
+                <input type="text" name="title" value="<?= Util::e($settings['title'] ?? '') ?>" required>
             </label>
             <label>Hero summary
-                <textarea name="hero_summary"><?= Util::e($settings['hero_summary'] ?? '') ?></textarea>
+                <textarea name="summary_text"><?= Util::e($settings['summary_text'] ?? '') ?></textarea>
             </label>
             <label>Hero supporting text
-                <textarea name="hero_supporting_text"><?= Util::e($settings['hero_supporting_text'] ?? '') ?></textarea>
+                <textarea name="supporting_text"><?= Util::e($settings['supporting_text'] ?? '') ?></textarea>
             </label>
             <label>Profile name
                 <input type="text" name="profile_name" value="<?= Util::e($settings['profile_name'] ?? '') ?>" required>
@@ -53,7 +53,7 @@ use App\Support\Util;
                 <input type="text" name="profile_availability" value="<?= Util::e($settings['profile_availability'] ?? '') ?>">
             </label>
             <label class="checkbox">
-                <input type="checkbox" name="open_to_work" value="1" <?= !empty($settings['open_to_work']) && $settings['open_to_work'] !== '0' ? 'checked' : '' ?>>
+                <input type="checkbox" name="open_to_work" value="1" <?= !empty($settings['open_to_work']) ? 'checked' : '' ?>>
                 <span>Open to work</span>
             </label>
             <label>CTA mode
@@ -65,16 +65,26 @@ use App\Support\Util;
                 </select>
             </label>
             <label>Primary CTA label
-                <input type="text" name="cta_primary_label" value="<?= Util::e($settings['cta_primary_label'] ?? '') ?>" required>
+                <input type="text" name="primary_cta_label" value="<?= Util::e($settings['primary_cta_label'] ?? '') ?>" required>
             </label>
             <label>Primary CTA URL
-                <input type="text" name="cta_primary_url" value="<?= Util::e($settings['cta_primary_url'] ?? '') ?>" required>
+                <input type="text" name="primary_cta_url" value="<?= Util::e($settings['primary_cta_url'] ?? '') ?>" required>
             </label>
             <label>Secondary CTA label
-                <input type="text" name="cta_secondary_label" value="<?= Util::e($settings['cta_secondary_label'] ?? '') ?>">
+                <input type="text" name="secondary_cta_label" value="<?= Util::e($settings['secondary_cta_label'] ?? '') ?>">
             </label>
             <label>Secondary CTA URL
-                <input type="text" name="cta_secondary_url" value="<?= Util::e($settings['cta_secondary_url'] ?? '') ?>">
+                <input type="text" name="secondary_cta_url" value="<?= Util::e($settings['secondary_cta_url'] ?? '') ?>">
+            </label>
+            <label>Headshot document
+                <select name="headshot_document_id">
+                    <option value="0">None</option>
+                    <?php foreach ($documents as $document): ?>
+                        <option value="<?= (int) $document['id'] ?>" <?= (int) ($settings['headshot_document_id'] ?? 0) === (int) $document['id'] ? 'selected' : '' ?>>
+                            <?= Util::e($document['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </label>
             <button class="btn primary" type="submit">Save hero settings</button>
         </form>

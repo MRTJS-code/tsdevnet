@@ -54,6 +54,7 @@ The homepage should be checked for:
 - hidden/inactive modules not rendering
 - empty states failing gracefully
 - no missing payload causing template crashes
+- timeline detail interaction working without modal fragility
 
 ### 6. Admin/CMS checks
 At minimum, structural/admin checks should verify:
@@ -107,9 +108,19 @@ MySQL migration integration notes:
 - Tests must not depend on private files or local-only scripts.
 - Fixtures should be minimal and purposeful.
 
+## Browser automation
+Playwright browser coverage is now part of the homepage regression baseline:
+- homepage loads successfully
+- hero renders
+- footer renders
+- modules render in seeded order
+- inactive module does not render
+- timeline details expand/collapse
+- CTA/banner links render when seeded
+- footer CV / LinkedIn / GitHub links render when seeded
+
 ## Not yet covered
 The following are future areas, not current mandatory coverage:
-- browser automation
 - visual regression testing
 - accessibility automation
 - chatbot conversation quality testing

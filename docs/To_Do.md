@@ -14,20 +14,20 @@ Tracks progress against the expected development plan.
 - Rule-based assistant seam introduced
 - Fixed hero and footer model implemented
 - Ordered homepage module registry introduced
+- Homepage cut over to generic block-type payload tables
+- Playwright browser smoke coverage introduced for the modular homepage
 - Reusable content reset/seed flow introduced
 - Local-only Tony example seed/reset templates documented
 - Documentation discipline introduced for architecture, testing, decisions, debug, and AI contract
 
 ## In progress
-- Consolidating admin around the new module hub while older typed payload editors still exist underneath
-- Tightening migration/setup verification around the new module registry
-- Replacing remaining older docs language that still refers to wrapper blocks as canonical
+- Cleaning up legacy semantic homepage editors and stale docs language that remain outside the new homepage path
+- Tightening browser-test setup guidance for local and CI use
 
 ## Next
-- Add automated tests around module repositories and homepage assembly
+- Add deeper admin validation around block-type payload editing
 - Add integration checks for migration + reset + seed flow
 - Clean up or retire older transitional homepage/content-block routes once no longer needed
-- Improve admin messaging around typed payload editors linked from the module hub
 
 ## Later
 - Improve recruiter portal UX further

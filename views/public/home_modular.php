@@ -6,7 +6,7 @@ $modules = $homepage['modules'] ?? [];
 $footer = $homepage['footer_contact'];
 ?>
 <main class="site-shell site-shell--homepage">
-    <section class="hero hero--profile">
+    <section class="hero hero--profile" data-testid="homepage-hero">
         <div class="hero__layout">
             <div class="hero__content">
                 <?php if (!empty($hero['eyebrow'])): ?>
@@ -59,6 +59,7 @@ $footer = $homepage['footer_contact'];
         </div>
     </section>
 
+    <section class="homepage-modules" data-testid="homepage-modules">
     <?php foreach ($modules as $module): ?>
         <?php
         $moduleTemplate = __DIR__ . '/modules/' . preg_replace('/[^a-z_]/', '', (string) $module['module_type']) . '.php';
@@ -67,9 +68,10 @@ $footer = $homepage['footer_contact'];
         }
         ?>
     <?php endforeach; ?>
+    </section>
 </main>
 
-<footer class="site-footer">
+<footer class="site-footer" data-testid="homepage-footer">
     <div class="site-footer__inner">
         <div>
             <p class="eyebrow">Contact</p>
@@ -99,33 +101,3 @@ $footer = $homepage['footer_contact'];
         </div>
     </div>
 </footer>
-
-<script>
-document.addEventListener('click', function (event) {
-    const trigger = event.target.closest('[data-dialog-target]');
-    if (trigger) {
-        const dialog = document.getElementById(trigger.getAttribute('data-dialog-target'));
-        if (dialog && typeof dialog.showModal === 'function') {
-            dialog.showModal();
-        }
-    }
-
-    if (event.target.matches('[data-dialog-close]')) {
-        const dialog = event.target.closest('dialog');
-        if (dialog) {
-            dialog.close();
-        }
-    }
-});
-
-document.querySelectorAll('dialog').forEach(function (dialog) {
-    dialog.addEventListener('click', function (event) {
-        const bounds = dialog.getBoundingClientRect();
-        const inside = bounds.top <= event.clientY && event.clientY <= bounds.bottom
-            && bounds.left <= event.clientX && event.clientX <= bounds.right;
-        if (!inside) {
-            dialog.close();
-        }
-    });
-});
-</script>

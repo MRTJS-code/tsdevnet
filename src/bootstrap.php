@@ -12,13 +12,23 @@ use App\Repositories\HomepageCertificationRepository;
 use App\Repositories\HomepageDocumentRepository;
 use App\Repositories\HomepageExperienceRepository;
 use App\Repositories\HomepageExperienceHighlightRepository;
+use App\Repositories\HomepageFooterSettingsRepository;
+use App\Repositories\HomepageHeroSettingsRepository;
 use App\Repositories\HomepageModuleRepository;
 use App\Repositories\HomepagePortfolioRepository;
 use App\Repositories\HomepageTechnologyEntryRepository;
 use App\Repositories\HomepageTechnologyGroupRepository;
 use App\Repositories\HomepageTestimonialRepository;
 use App\Repositories\MessageRepository;
+use App\Repositories\ModuleCaseStudyItemRepository;
+use App\Repositories\ModuleCtaBannerPayloadRepository;
+use App\Repositories\ModuleListItemRepository;
+use App\Repositories\ModuleMediaTextPayloadRepository;
+use App\Repositories\ModulePillCardItemRepository;
+use App\Repositories\ModuleQuoteCardItemRepository;
+use App\Repositories\ModuleRichTextPayloadRepository;
 use App\Repositories\ModuleRichTextSectionRepository;
+use App\Repositories\ModuleTimelineEntryRepository;
 use App\Repositories\RateLimitRepository;
 use App\Repositories\SiteSettingRepository;
 use App\Repositories\TokenRepository;
@@ -28,9 +38,9 @@ use App\Services\ApprovalService;
 use App\Services\AuditService;
 use App\Services\AuthService;
 use App\Services\ChatService;
-use App\Services\HomepageContentService;
 use App\Services\HomepageUploadService;
 use App\Services\MagicLinkService;
+use App\Services\ModularHomepageContentService;
 use App\Services\RateLimitService;
 use App\Services\UserService;
 use App\Support\Database;
@@ -65,6 +75,8 @@ $contentBlockRepository = new ContentBlockRepository($pdo);
 $contentItemRepository = new ContentItemRepository($pdo);
 $assistantKnowledgeRepository = new AssistantKnowledgeRepository($pdo);
 $siteSettingRepository = new SiteSettingRepository($pdo);
+$homepageHeroSettingsRepository = new HomepageHeroSettingsRepository($pdo);
+$homepageFooterSettingsRepository = new HomepageFooterSettingsRepository($pdo);
 $homepageExperienceRepository = new HomepageExperienceRepository($pdo);
 $homepageExperienceHighlightRepository = new HomepageExperienceHighlightRepository($pdo);
 $homepageCertificationRepository = new HomepageCertificationRepository($pdo);
@@ -74,6 +86,14 @@ $homepagePortfolioRepository = new HomepagePortfolioRepository($pdo);
 $homepageTestimonialRepository = new HomepageTestimonialRepository($pdo);
 $homepageDocumentRepository = new HomepageDocumentRepository($pdo);
 $homepageModuleRepository = new HomepageModuleRepository($pdo);
+$moduleRichTextPayloadRepository = new ModuleRichTextPayloadRepository($pdo);
+$moduleTimelineEntryRepository = new ModuleTimelineEntryRepository($pdo);
+$modulePillCardItemRepository = new ModulePillCardItemRepository($pdo);
+$moduleCaseStudyItemRepository = new ModuleCaseStudyItemRepository($pdo);
+$moduleListItemRepository = new ModuleListItemRepository($pdo);
+$moduleQuoteCardItemRepository = new ModuleQuoteCardItemRepository($pdo);
+$moduleCtaBannerPayloadRepository = new ModuleCtaBannerPayloadRepository($pdo);
+$moduleMediaTextPayloadRepository = new ModuleMediaTextPayloadRepository($pdo);
 $moduleRichTextSectionRepository = new ModuleRichTextSectionRepository($pdo);
 
 $auditService = new AuditService($auditLogRepository);
@@ -85,18 +105,19 @@ $userService = new UserService($userRepository, $magicLinkService, $mailer, $aud
 $approvalService = new ApprovalService($userRepository, $conversationRepository, $messageRepository, $auditService);
 $adminAuthService = new AdminAuthService($adminUserRepository, $auditService);
 $homepageUploadService = new HomepageUploadService($root);
-$siteContentService = new HomepageContentService(
-    $siteSettingRepository,
-    $homepageExperienceRepository,
-    $homepageExperienceHighlightRepository,
-    $homepageCertificationRepository,
-    $homepageTechnologyGroupRepository,
-    $homepageTechnologyEntryRepository,
-    $homepagePortfolioRepository,
-    $homepageTestimonialRepository,
+$siteContentService = new ModularHomepageContentService(
+    $homepageHeroSettingsRepository,
+    $homepageFooterSettingsRepository,
     $homepageDocumentRepository,
     $homepageModuleRepository,
-    $moduleRichTextSectionRepository
+    $moduleRichTextPayloadRepository,
+    $moduleTimelineEntryRepository,
+    $modulePillCardItemRepository,
+    $moduleCaseStudyItemRepository,
+    $moduleListItemRepository,
+    $moduleQuoteCardItemRepository,
+    $moduleCtaBannerPayloadRepository,
+    $moduleMediaTextPayloadRepository
 );
 $chatService = new ChatService($conversationRepository, $messageRepository, new RuleBasedChatProvider($assistantKnowledgeRepository), $auditService);
 
@@ -109,6 +130,8 @@ return [
         'content_items' => $contentItemRepository,
         'assistant_knowledge' => $assistantKnowledgeRepository,
         'site_settings' => $siteSettingRepository,
+        'homepage_hero_settings' => $homepageHeroSettingsRepository,
+        'homepage_footer_settings' => $homepageFooterSettingsRepository,
         'homepage_experience' => $homepageExperienceRepository,
         'homepage_experience_highlights' => $homepageExperienceHighlightRepository,
         'homepage_certifications' => $homepageCertificationRepository,
@@ -118,6 +141,14 @@ return [
         'homepage_testimonials' => $homepageTestimonialRepository,
         'homepage_documents' => $homepageDocumentRepository,
         'homepage_modules' => $homepageModuleRepository,
+        'module_rich_text_payloads' => $moduleRichTextPayloadRepository,
+        'module_timeline_entries' => $moduleTimelineEntryRepository,
+        'module_pill_card_items' => $modulePillCardItemRepository,
+        'module_case_study_items' => $moduleCaseStudyItemRepository,
+        'module_list_items' => $moduleListItemRepository,
+        'module_quote_card_items' => $moduleQuoteCardItemRepository,
+        'module_cta_banner_payloads' => $moduleCtaBannerPayloadRepository,
+        'module_media_text_payloads' => $moduleMediaTextPayloadRepository,
         'module_rich_text_sections' => $moduleRichTextSectionRepository,
     ],
     'services' => [

@@ -25,11 +25,7 @@ use App\Support\Util;
         <form method="post" class="form" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= Util::e(Security::csrfToken()) ?>">
             <label>Document key
-                <select name="document_key">
-                    <?php foreach ($allowedKeys as $key): ?>
-                        <option value="<?= Util::e($key) ?>" <?= $entry['document_key'] === $key ? 'selected' : '' ?>><?= Util::e($key) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <input type="text" name="document_key" value="<?= Util::e($entry['document_key']) ?>" required>
             </label>
             <label>Document type
                 <select name="document_type">
@@ -45,7 +41,7 @@ use App\Support\Util;
                 <textarea name="description_text"><?= Util::e($entry['description_text']) ?></textarea>
             </label>
             <label>Upload file
-                <input type="file" name="upload_file" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                <input type="file" name="upload_file" accept=".jpg,.jpeg,.png,.webp,.pdf,.svg">
             </label>
             <?php if (!empty($entry['file_path'])): ?>
                 <p class="help-text">Current file: <a href="<?= Util::e($entry['file_path']) ?>" target="_blank" rel="noreferrer"><?= Util::e($entry['file_path']) ?></a></p>

@@ -20,7 +20,7 @@ Homepage content management became too rigid because sections were explicitly co
 The homepage evolved around named hardcoded sections rather than a modular ordered body-content model.
 
 ### Fix
-Introduce fixed hero and footer regions with an ordered `homepage_modules` registry for the middle-page content.
+Introduce fixed hero and footer regions with an ordered `homepage_modules` registry for the middle-page content, then move the semantic homepage payloads into generic block-type tables.
 
 ### Prevention
 Avoid adding new homepage sections as one-off hardcoded template regions unless they are truly fixed by design.
@@ -29,6 +29,7 @@ Avoid adding new homepage sections as one-off hardcoded template regions unless 
 - homepage render contract
 - ordered content module tests
 - admin reorder tests
+- Playwright homepage rendering tests
 
 ---
 
@@ -73,7 +74,7 @@ Typed homepage data alone no longer guarantees a working middle-page render once
 The current repo maturity required explicit module seed data in addition to the typed content tables.
 
 ### Fix
-Add `homepage_modules`, `module_rich_text_sections`, and explicit reusable/local seed flows that populate both module ordering and typed payloads.
+Add `homepage_modules`, the dedicated block payload tables, and explicit reusable/local seed flows that populate both module ordering and typed payloads.
 
 ### Prevention
 Treat module-order data as canonical setup state and include it in reset/seed verification.

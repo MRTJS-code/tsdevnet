@@ -44,15 +44,19 @@ final class HomepageDocumentRepository
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO documents (document_key, label, file_path, mime_type, is_public, display_order, is_active, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
+            'INSERT INTO documents (document_key, document_type, label, description_text, file_path, external_url, mime_type, file_size_bytes, is_public, display_order, is_active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
         );
         $stmt->execute([
             $this->canonicalKey($data['document_key']),
+            $this->documentType($data),
             $data['title'] ?? $data['label'],
+            ($data['description_text'] ?? '') ?: null,
             ($data['file_path'] ?? '') ?: null,
+            ($data['external_url'] ?? '') ?: null,
             ($data['mime_type'] ?? '') ?: null,
-            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) ? 1 : 0),
+            !empty($data['file_size_bytes']) ? (int) $data['file_size_bytes'] : null,
+            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) || !empty($data['external_url']) ? 1 : 0),
             (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
         ]);
@@ -64,15 +68,19 @@ final class HomepageDocumentRepository
     {
         $stmt = $this->pdo->prepare(
             'UPDATE documents
-             SET document_key = ?, label = ?, file_path = ?, mime_type = ?, is_public = ?, display_order = ?, is_active = ?, updated_at = NOW()
+             SET document_key = ?, document_type = ?, label = ?, description_text = ?, file_path = ?, external_url = ?, mime_type = ?, file_size_bytes = ?, is_public = ?, display_order = ?, is_active = ?, updated_at = NOW()
              WHERE id = ?'
         );
         $stmt->execute([
             $this->canonicalKey($data['document_key']),
+            $this->documentType($data),
             $data['title'] ?? $data['label'],
+            ($data['description_text'] ?? '') ?: null,
             ($data['file_path'] ?? '') ?: null,
+            ($data['external_url'] ?? '') ?: null,
             ($data['mime_type'] ?? '') ?: null,
-            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) ? 1 : 0),
+            !empty($data['file_size_bytes']) ? (int) $data['file_size_bytes'] : null,
+            !empty($data['is_public']) ? 1 : (!empty($data['file_path']) || !empty($data['external_url']) ? 1 : 0),
             (int) ($data['sort_order'] ?? $data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,
             $id,
@@ -102,11 +110,11 @@ final class HomepageDocumentRepository
 
         return $row + [
             'document_key' => $legacyKey,
-            'document_type' => $legacyKey === 'hero_headshot' ? 'headshot' : 'cv_pdf',
+            'document_type' => $row['document_type'] ?? ($legacyKey === 'hero_headshot' ? 'headshot' : 'cv_pdf'),
             'title' => $row['label'],
             'sort_order' => (int) ($row['display_order'] ?? 0),
-            'file_size_bytes' => null,
-            'external_url' => '',
+            'file_size_bytes' => isset($row['file_size_bytes']) ? (int) $row['file_size_bytes'] : null,
+            'external_url' => $row['external_url'] ?? '',
         ];
     }
 
@@ -126,5 +134,11 @@ final class HomepageDocumentRepository
             'cv' => 'footer_cv',
             default => $documentKey,
         };
+    }
+
+    private function documentType(array $data): string
+    {
+        $type = trim((string) ($data['document_type'] ?? 'file'));
+        return $type !== '' ? $type : 'file';
     }
 }

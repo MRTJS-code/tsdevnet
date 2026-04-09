@@ -18,9 +18,13 @@ function test_pdo(): PDO
 CREATE TABLE documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     document_key TEXT NOT NULL UNIQUE,
+    document_type TEXT NOT NULL DEFAULT 'file',
     label TEXT NOT NULL,
+    description_text TEXT,
     file_path TEXT,
+    external_url TEXT,
     mime_type TEXT,
+    file_size_bytes INTEGER,
     is_public INTEGER NOT NULL DEFAULT 0,
     display_order INTEGER NOT NULL DEFAULT 0,
     is_active INTEGER NOT NULL DEFAULT 1,
@@ -60,6 +64,42 @@ CREATE TABLE site_settings (
     updated_at TEXT NOT NULL
 );
 
+CREATE TABLE homepage_hero_settings (
+    id INTEGER PRIMARY KEY,
+    site_title TEXT NOT NULL,
+    eyebrow TEXT,
+    title TEXT NOT NULL,
+    summary_text TEXT,
+    supporting_text TEXT,
+    profile_name TEXT,
+    profile_role TEXT,
+    profile_location TEXT,
+    profile_availability TEXT,
+    open_to_work INTEGER NOT NULL DEFAULT 0,
+    cta_mode TEXT NOT NULL DEFAULT 'register_request_chat',
+    primary_cta_label TEXT NOT NULL,
+    primary_cta_url TEXT NOT NULL,
+    secondary_cta_label TEXT,
+    secondary_cta_url TEXT,
+    headshot_document_id INTEGER,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE homepage_footer_settings (
+    id INTEGER PRIMARY KEY,
+    heading TEXT,
+    body_text TEXT,
+    contact_email TEXT,
+    contact_phone TEXT,
+    contact_location TEXT,
+    cv_document_id INTEGER,
+    linkedin_url TEXT,
+    github_url TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
 CREATE TABLE homepage_modules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     module_key TEXT NOT NULL UNIQUE,
@@ -69,7 +109,6 @@ CREATE TABLE homepage_modules (
     intro_text TEXT,
     anchor_id TEXT,
     style_variant TEXT,
-    group_key TEXT,
     media_document_id INTEGER,
     display_order INTEGER NOT NULL DEFAULT 0,
     is_active INTEGER NOT NULL DEFAULT 1,
@@ -77,17 +116,124 @@ CREATE TABLE homepage_modules (
     updated_at TEXT NOT NULL
 );
 
-CREATE TABLE module_rich_text_sections (
+CREATE TABLE module_rich_text_payloads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     module_id INTEGER NOT NULL UNIQUE,
     body_text TEXT,
-    cta_label TEXT,
-    cta_url TEXT,
+    primary_cta_label TEXT,
+    primary_cta_url TEXT,
     secondary_cta_label TEXT,
     secondary_cta_url TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (module_id) REFERENCES homepage_modules(id) ON DELETE CASCADE
+);
+
+CREATE TABLE module_timeline_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL,
+    entry_title TEXT NOT NULL,
+    entry_subtitle TEXT,
+    meta_text TEXT,
+    summary_text TEXT,
+    detail_text TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_timeline_highlights (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timeline_entry_id INTEGER NOT NULL,
+    highlight_text TEXT NOT NULL,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (timeline_entry_id) REFERENCES module_timeline_entries(id) ON DELETE CASCADE
+);
+
+CREATE TABLE module_pill_card_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    body_text TEXT,
+    badge_text TEXT,
+    link_label TEXT,
+    link_url TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_case_study_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    category_text TEXT,
+    summary_text TEXT,
+    outcome_text TEXT,
+    detail_text TEXT,
+    link_label TEXT,
+    link_url TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_list_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL,
+    item_title TEXT NOT NULL,
+    item_body TEXT,
+    item_meta TEXT,
+    link_label TEXT,
+    link_url TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_quote_card_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL,
+    quote_text TEXT NOT NULL,
+    attribution_name TEXT NOT NULL,
+    attribution_role TEXT,
+    attribution_context TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_cta_banner_payloads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL UNIQUE,
+    body_text TEXT,
+    primary_cta_label TEXT,
+    primary_cta_url TEXT,
+    secondary_cta_label TEXT,
+    secondary_cta_url TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE module_media_text_payloads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    module_id INTEGER NOT NULL UNIQUE,
+    body_text TEXT,
+    media_position TEXT NOT NULL DEFAULT 'right',
+    primary_cta_label TEXT,
+    primary_cta_url TEXT,
+    secondary_cta_label TEXT,
+    secondary_cta_url TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
 );
 
 CREATE TABLE profile_experience (

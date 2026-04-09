@@ -1,5 +1,5 @@
-<?php use App\Support\Util; ?>
-<section class="section"<?= !empty($module['anchor_id']) ? ' id="' . Util::e($module['anchor_id']) . '"' : '' ?>>
+<?php use App\Support\Util; $content = $module['content'] ?? []; ?>
+<section class="section" id="<?= Util::e($module['anchor_id'] ?: ('module-' . $module['id'])) ?>" data-module-key="<?= Util::e($module['module_key']) ?>" data-module-type="rich_text">
     <article class="section-wrapper section-wrapper--top">
         <?php if (!empty($module['eyebrow'])): ?>
             <p class="eyebrow"><?= Util::e($module['eyebrow']) ?></p>
@@ -10,14 +10,14 @@
                 <p class="lede"><?= Util::e($module['intro_text']) ?></p>
             <?php endif; ?>
         </div>
-        <?php if (!empty($module['content']['body_text'])): ?>
-            <p class="lede"><?= Util::e($module['content']['body_text']) ?></p>
+        <?php if (!empty($content['body_text'])): ?>
+            <p class="lede"><?= Util::e($content['body_text']) ?></p>
         <?php endif; ?>
-        <?php if (!empty($module['content']['cta']['label']) && !empty($module['content']['cta']['url'])): ?>
+        <?php if (!empty($content['primary_cta']['label']) && !empty($content['primary_cta']['url'])): ?>
             <div class="actions">
-                <a class="btn primary" href="<?= Util::e($module['content']['cta']['url']) ?>"><?= Util::e($module['content']['cta']['label']) ?></a>
-                <?php if (!empty($module['content']['secondary_cta']['label']) && !empty($module['content']['secondary_cta']['url'])): ?>
-                    <a class="btn ghost" href="<?= Util::e($module['content']['secondary_cta']['url']) ?>"><?= Util::e($module['content']['secondary_cta']['label']) ?></a>
+                <a class="btn primary" href="<?= Util::e($content['primary_cta']['url']) ?>"><?= Util::e($content['primary_cta']['label']) ?></a>
+                <?php if (!empty($content['secondary_cta']['label']) && !empty($content['secondary_cta']['url'])): ?>
+                    <a class="btn ghost" href="<?= Util::e($content['secondary_cta']['url']) ?>"><?= Util::e($content['secondary_cta']['label']) ?></a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

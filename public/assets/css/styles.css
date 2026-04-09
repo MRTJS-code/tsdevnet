@@ -531,9 +531,10 @@ small {
 .card-rail {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: calc((100% - 32px) / 3);
+    grid-auto-columns: calc((100% - 16px) / 2);
     gap: 16px;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 10px;
     scroll-snap-type: x proximity;
     scrollbar-color: rgba(212, 134, 82, 0.4) rgba(255, 255, 255, 0.05);

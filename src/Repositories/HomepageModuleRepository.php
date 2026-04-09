@@ -9,12 +9,13 @@ final class HomepageModuleRepository
 {
     private const ALLOWED_TYPES = [
         'rich_text',
-        'experience_timeline',
-        'certifications',
-        'technology_groups',
-        'featured_portfolio',
-        'testimonials',
-        'cta_info',
+        'timeline',
+        'pill_cards',
+        'case_studies',
+        'list',
+        'quote_cards',
+        'cta_banner',
+        'media_text',
     ];
 
     public function __construct(private PDO $pdo)
@@ -54,8 +55,8 @@ final class HomepageModuleRepository
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO homepage_modules (module_key, module_type, eyebrow, title, intro_text, anchor_id, style_variant, group_key, media_document_id, display_order, is_active, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
+            'INSERT INTO homepage_modules (module_key, module_type, eyebrow, title, intro_text, anchor_id, style_variant, media_document_id, display_order, is_active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
         );
         $stmt->execute($this->params($data));
 
@@ -66,7 +67,7 @@ final class HomepageModuleRepository
     {
         $stmt = $this->pdo->prepare(
             'UPDATE homepage_modules
-             SET module_key = ?, module_type = ?, eyebrow = ?, title = ?, intro_text = ?, anchor_id = ?, style_variant = ?, group_key = ?, media_document_id = ?, display_order = ?, is_active = ?, updated_at = NOW()
+             SET module_key = ?, module_type = ?, eyebrow = ?, title = ?, intro_text = ?, anchor_id = ?, style_variant = ?, media_document_id = ?, display_order = ?, is_active = ?, updated_at = NOW()
              WHERE id = ?'
         );
         $params = $this->params($data);
@@ -100,7 +101,6 @@ final class HomepageModuleRepository
             $this->nullableString($data['intro_text'] ?? null),
             $this->nullableString($data['anchor_id'] ?? null),
             $this->nullableString($data['style_variant'] ?? null),
-            $this->nullableString($data['group_key'] ?? null),
             !empty($data['media_document_id']) ? (int) $data['media_document_id'] : null,
             (int) ($data['display_order'] ?? 0),
             !empty($data['is_active']) ? 1 : 0,

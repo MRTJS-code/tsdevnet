@@ -33,10 +33,12 @@ The repo must remain:
 - Seed logic must be explicit, repeatable, and environment-appropriate.
 - Fixed homepage sections should remain fixed only where design requires it.
 - Flexible middle-page content should be handled via ordered homepage modules, not repeated hardcoded homepage sections.
+- Homepage module names must describe rendering shape only, not business meaning.
 
 ## CMS and content rules
 - Hero and footer are fixed design regions.
 - Middle-page content is modular, ordered, activatable, and CMS-managed.
+- Middle-page block types currently supported are `rich_text`, `timeline`, `pill_cards`, `case_studies`, `list`, `quote_cards`, `cta_banner`, and `media_text`.
 - New content types should extend the module model deliberately, not through ad hoc hardcoding.
 - Public reusable test data should stay generic.
 - Personal live content should be loaded through local-only seed paths or admin UI.

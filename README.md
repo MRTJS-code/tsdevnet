@@ -1,12 +1,20 @@
 # Professional Profile and Recruiter Portal (PHP 8 + MySQL 8)
 
 ## Modular homepage model
-- Hero is fixed and driven by `site_settings` plus the headshot document.
-- Footer/contact/CV is fixed and driven by `site_settings` plus the CV/social document links.
-- Everything in the middle of the homepage is now driven by ordered `homepage_modules`.
-- `module_rich_text_sections` stores inline payloads for rich text / CTA-info modules.
-- Structured payload data still lives in typed tables for experience, certifications, technology groups, portfolio items, and testimonials.
-- `content_blocks` and `content_items` remain in the repo only as legacy generic CMS tables and are no longer the canonical homepage driver.
+- Hero is fixed and driven by `homepage_hero_settings` plus the headshot document.
+- Footer/contact/CV is fixed and driven by `homepage_footer_settings` plus the CV/social links.
+- Everything in the middle of the homepage is driven by ordered `homepage_modules`.
+- Middle-page modules are generic render types, not CV-specific concepts.
+- Structured payloads live in dedicated relational tables per module type:
+  - `module_rich_text_payloads`
+  - `module_timeline_entries` and `module_timeline_highlights`
+  - `module_pill_card_items`
+  - `module_case_study_items`
+  - `module_list_items`
+  - `module_quote_card_items`
+  - `module_cta_banner_payloads`
+  - `module_media_text_payloads`
+- `content_blocks` and `content_items` remain only as legacy CMS tables and are not part of the homepage engine.
 - Rule-based assistant knowledge remains DB-managed via `assistant_knowledge`.
 - Admin auth remains DB-backed via `admin_users`.
 
@@ -45,6 +53,7 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
    mysql -u USER -p -h HOST DB_NAME < migrations/005_profile_content_model.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/006_homepage_layout_refinements.sql
    mysql -u USER -p -h HOST DB_NAME < migrations/007_homepage_modules.sql
+   mysql -u USER -p -h HOST DB_NAME < migrations/008_modular_homepage_blocks.sql
    php scripts/seed_phase1b.php
    php scripts/reset_content.php
    php scripts/seed_reusable_content.php
@@ -67,18 +76,19 @@ Minimal, production-ready skeleton with magic-link auth, Turnstile CAPTCHA, basi
 - Ordered homepage modules for the middle of the page
 - Fixed footer/contact/CV payload
 
-Initial module types:
-- rich text / executive summary
-- experience timeline
-- certifications
-- technology groups
-- featured portfolio
-- testimonials
-- CTA / info block
+Supported middle-page module types:
+- `rich_text`
+- `timeline`
+- `pill_cards`
+- `case_studies`
+- `list`
+- `quote_cards`
+- `cta_banner`
+- `media_text`
 
 Admin flow:
 - `/admin/homepage-hero.php` manages the fixed hero.
-- `/admin/homepage-modules.php` manages ordered middle-page modules.
+- `/admin/homepage-modules.php` manages ordered generic middle-page modules.
 - `/admin/homepage-footer.php` and `/admin/homepage-documents.php` manage the fixed footer/contact/documents.
 
 ## Turnstile
@@ -156,6 +166,11 @@ Admin flow:
   php tests/run.php --mysql-migrations
   ```
 - The MySQL migration test creates a disposable temporary database from your configured DB connection, applies all migrations, verifies key schema objects, and drops that database during cleanup.
+- First-pass browser tests use Playwright:
+  ```sh
+  npm run test:e2e
+  ```
+- Playwright starts PHP's built-in server automatically. Apply migrations and run `php scripts/seed_reusable_content.php` first so the browser tests see the modular homepage.
 # Phase 1A Refactor Notes
 
 This repository now runs on a lightweight layered PHP structure aimed at traditional low-cost PHP/LAMP hosting:
